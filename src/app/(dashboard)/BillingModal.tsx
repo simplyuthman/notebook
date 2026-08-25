@@ -340,6 +340,8 @@ export default function BillingModal({
                       <PlanManagement
                         currentPlan={data.plan}
                         currentInterval={data.interval}
+                        currentPeriodEnd={data.currentPeriodEnd}
+                        status={data.status}
                         onUpgrade={handleUpgrade}
                         actionLoading={actionLoading}
                       />

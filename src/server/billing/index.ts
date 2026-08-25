@@ -291,8 +291,9 @@ export type SettlementOutcome =
   | "UNVERIFIABLE"
   | "INVALID_REFERENCE";
 
-function periodEndFromNow(interval: BillingInterval): Date {
-  const end = new Date();
+function calculateNewPeriodEnd(existingEnd: Date | null | undefined, interval: BillingInterval): Date {
+  const base = existingEnd && new Date(existingEnd) > new Date() ? new Date(existingEnd) : new Date();
+  const end = new Date(base);
   if (interval === "YEARLY") {
     end.setFullYear(end.getFullYear() + 1);
   } else {
@@ -404,17 +405,27 @@ export async function settleProSubscription(
   // Paired effect: subscription activation + plan upgrade + ledger row + payment log,
   // atomically — a user is never Pro in one place and Free in another.
   await db.$transaction(async (tx) => {
+    const existingSub = await tx.subscription.findUnique({
+      where: { userId: parsedRef.userId },
+      select: { currentPeriodEnd: true, status: true },
+    });
+
+    const newPeriodEnd = calculateNewPeriodEnd(
+      existingSub?.status === 'ACTIVE' ? existingSub.currentPeriodEnd : null,
+      parsedRef.interval
+    );
+
     await tx.subscription.upsert({
       where: { userId: parsedRef.userId },
       create: {
         userId: parsedRef.userId,
         status: "ACTIVE",
-        currentPeriodEnd: periodEndFromNow(parsedRef.interval),
+        currentPeriodEnd: newPeriodEnd,
         providerRef: providerTxId,
       },
       update: {
         status: "ACTIVE",
-        currentPeriodEnd: periodEndFromNow(parsedRef.interval),
+        currentPeriodEnd: newPeriodEnd,
         providerRef: providerTxId,
       },
     });

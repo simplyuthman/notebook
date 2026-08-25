@@ -4,17 +4,42 @@ import React, { useState } from 'react';
 import { config } from '@/config';
 import { formatNaira } from '@/lib/formatNaira';
 import ConfirmationModal from './ConfirmationModal';
+import { SubscriptionStatus } from './types';
 
 interface PlanManagementProps {
   currentPlan: 'FREE' | 'PRO';
   currentInterval: 'MONTHLY' | 'YEARLY' | null;
+  currentPeriodEnd?: string | null;
+  status?: SubscriptionStatus;
   onUpgrade: (interval: 'MONTHLY' | 'YEARLY') => Promise<void>;
   actionLoading: boolean;
+}
+
+function formatDate(iso: string | null | undefined): string {
+  if (!iso) return '';
+  return new Intl.DateTimeFormat('en-NG', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  }).format(new Date(iso));
+}
+
+function calculateProjectedEndDate(currentEnd: string | null | undefined, interval: 'MONTHLY' | 'YEARLY'): string {
+  const base = currentEnd && new Date(currentEnd) > new Date() ? new Date(currentEnd) : new Date();
+  const next = new Date(base);
+  if (interval === 'YEARLY') {
+    next.setFullYear(next.getFullYear() + 1);
+  } else {
+    next.setMonth(next.getMonth() + 1);
+  }
+  return formatDate(next.toISOString());
 }
 
 export default function PlanManagement({
   currentPlan,
   currentInterval,
+  currentPeriodEnd,
+  status = 'ACTIVE',
   onUpgrade,
   actionLoading,
 }: PlanManagementProps) {
@@ -26,8 +51,11 @@ export default function PlanManagement({
   const savingsPct = Math.round((1 - yearlyPrice / (monthlyPrice * 12)) * 100);
   const yearlyEffectiveMonthly = Math.round(yearlyPrice / 12);
 
-  const isCurrentMonthly = currentPlan === 'PRO' && currentInterval === 'MONTHLY';
-  const isCurrentYearly = currentPlan === 'PRO' && currentInterval === 'YEARLY';
+  const hasActiveSubscription = currentPlan === 'PRO' && status === 'ACTIVE' && Boolean(currentPeriodEnd && new Date(currentPeriodEnd) > new Date());
+  const isCurrentMonthly = hasActiveSubscription && currentInterval === 'MONTHLY';
+  const isCurrentYearly = hasActiveSubscription && currentInterval === 'YEARLY';
+
+  const formattedCurrentPeriodEnd = formatDate(currentPeriodEnd);
 
   const handleOpenConfirm = (interval: 'MONTHLY' | 'YEARLY') => {
     setPendingChangeInterval(interval);
@@ -70,7 +98,7 @@ export default function PlanManagement({
 
   return (
     <div>
-      <div style={{ marginBottom: '24px' }}>
+      <div style={{ marginBottom: '20px' }}>
         <h3 style={{ margin: '0 0 4px', fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-on-surface, #191919)' }}>
           Manage Subscription Plan
         </h3>
@@ -78,6 +106,33 @@ export default function PlanManagement({
           Choose the right plan and billing frequency for your studies. Upgrade or switch intervals anytime.
         </p>
       </div>
+
+      {/* Active Proration & Double-Charge Protection Banner */}
+      {hasActiveSubscription && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '12px',
+            padding: '12px 16px',
+            backgroundColor: 'var(--color-surface-container-high, #f0f4ff)',
+            border: '1px solid var(--color-outline-variant, #ccd8ff)',
+            borderRadius: '10px',
+            marginBottom: '24px',
+            color: 'var(--color-on-surface, #191919)',
+            fontSize: '0.8125rem',
+            lineHeight: 1.5,
+          }}
+        >
+          <div style={{ fontSize: '1.125rem', lineHeight: 1 }}>🛡️</div>
+          <div>
+            <strong style={{ color: 'var(--color-primary, #0741ff)', display: 'block', marginBottom: '2px' }}>
+              Active Subscription Protection & Proration
+            </strong>
+            Your current Pro subscription is active until <strong>{formattedCurrentPeriodEnd}</strong>. When you switch or renew, your new subscription duration is <strong>additively extended</strong> onto your existing period so no paid days are lost.
+          </div>
+        </div>
+      )}
 
       {/* Plan Cards Grid */}
       <div
@@ -249,11 +304,11 @@ export default function PlanManagement({
               letterSpacing: '0.05em',
             }}
           >
-            Save {savingsPct}% (Best Value)
+            Save {savingsPct}%
           </span>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-primary, #0741ff)' }}>
+            <span style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-on-surface, #191919)' }}>
               Pro Yearly
             </span>
             {isCurrentYearly && (
@@ -275,8 +330,11 @@ export default function PlanManagement({
             {formatNaira(yearlyPrice)}
             <span style={{ fontSize: '0.875rem', fontWeight: 400, color: 'var(--color-on-surface-variant, #4c4c4c)' }}> / year</span>
           </div>
-          <p style={{ margin: '0 0 16px', fontSize: '0.75rem', color: 'var(--color-primary, #0741ff)', fontWeight: 600 }}>
-            ≈ {formatNaira(yearlyEffectiveMonthly)} / month
+          <div style={{ fontSize: '0.8125rem', color: 'var(--color-primary, #0741ff)', fontWeight: 600, marginBottom: '8px' }}>
+            {formatNaira(yearlyEffectiveMonthly)} / month equivalent
+          </div>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant, #4c4c4c)', marginBottom: '20px' }}>
+            Best value for full academic years with continuous access.
           </p>
 
           <ul style={{ margin: '0 0 24px', paddingLeft: '18px', fontSize: '0.8125rem', color: 'var(--color-on-surface, #191919)', lineHeight: 1.8 }}>
@@ -284,7 +342,7 @@ export default function PlanManagement({
             <li><strong>Unlimited</strong> digital books</li>
             <li>Up to 300 pages per book</li>
             <li>Watermark-free PDF export</li>
-            <li>2 Months Free Equivalent</li>
+            <li>Priority model OCR queue</li>
           </ul>
 
           <div style={{ marginTop: 'auto' }}>
@@ -311,7 +369,7 @@ export default function PlanManagement({
         </div>
       </div>
 
-      {/* Feature Comparison Table */}
+      {/* Plan Details Comparison Table */}
       <div
         style={{
           border: '1px solid var(--color-outline, #e6e6e6)',
@@ -361,18 +419,36 @@ export default function PlanManagement({
         description={
           <div>
             <p style={{ margin: '0 0 10px' }}>
-              You are about to select <strong>NotesBook Pro ({pendingChangeInterval === 'YEARLY' ? 'Yearly' : 'Monthly'})</strong> for{' '}
+              You are selecting <strong>NotesBook Pro ({pendingChangeInterval === 'YEARLY' ? 'Yearly' : 'Monthly'})</strong> for{' '}
               <strong style={{ color: 'var(--color-primary, #0741ff)' }}>
                 {pendingChangeInterval === 'YEARLY' ? formatNaira(yearlyPrice) : formatNaira(monthlyPrice)}
               </strong>
               .
             </p>
+            {hasActiveSubscription && pendingChangeInterval && (
+              <div
+                style={{
+                  backgroundColor: 'var(--color-surface-container-high, #f5f5f5)',
+                  border: '1px solid var(--color-outline, #e6e6e6)',
+                  borderRadius: '8px',
+                  padding: '10px 12px',
+                  marginBottom: '12px',
+                  fontSize: '0.8125rem',
+                  lineHeight: 1.5,
+                }}
+              >
+                <div style={{ fontWeight: 600, color: 'var(--color-primary, #0741ff)', marginBottom: '2px' }}>
+                  📅 Additive Extension (No Double-Charge)
+                </div>
+                Your active days through <strong>{formattedCurrentPeriodEnd}</strong> will not be lost. Your new {pendingChangeInterval === 'YEARLY' ? '1-year' : '1-month'} subscription will extend your access through <strong>{calculateProjectedEndDate(currentPeriodEnd, pendingChangeInterval)}</strong>.
+              </div>
+            )}
             <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--color-on-surface-variant, #4c4c4c)' }}>
-              You will be redirected to Flutterwave to securely complete your payment. Your new plan benefits will become effective immediately upon confirmation.
+              You will be redirected to Flutterwave to securely complete your payment.
             </p>
           </div>
         }
-        confirmLabel={`Upgrade for ${pendingChangeInterval === 'YEARLY' ? formatNaira(yearlyPrice) : formatNaira(monthlyPrice)}`}
+        confirmLabel={`Pay ${pendingChangeInterval === 'YEARLY' ? formatNaira(yearlyPrice) : formatNaira(monthlyPrice)}`}
         cancelLabel="Keep Current Plan"
         isLoading={actionLoading}
         onConfirm={handleConfirmPlanChange}
