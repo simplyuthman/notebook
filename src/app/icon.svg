@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- Background -->
+  <rect width="100" height="100" rx="18" fill="#ffffff"/>
+
+  <!-- Open book left page -->
+  <path d="M18 30 C18 27 21 25 24 25 L48 25 L48 72 C38 70 26 68 18 72 Z"
+        fill="#0741ff"/>
+
+  <!-- Open book right page -->
+  <path d="M82 30 C82 27 79 25 76 25 L52 25 L52 72 C62 70 74 68 82 72 Z"
+        fill="#0741ff"/>
+
+  <!-- Book spine line -->
+  <line x1="50" y1="25" x2="50" y2="72" stroke="#ffffff" stroke-width="2"/>
+
+  <!-- Lines on left page (note lines) -->
+  <line x1="27" y1="37" x2="44" y2="37" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+  <line x1="27" y1="45" x2="44" y2="45" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+  <line x1="27" y1="53" x2="44" y2="53" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- Lines on right page (note lines) -->
+  <line x1="56" y1="37" x2="73" y2="37" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+  <line x1="56" y1="45" x2="73" y2="45" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+  <line x1="56" y1="53" x2="73" y2="53" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- AI Sparkle above book -->
+  <g transform="translate(50, 14)">
+    <!-- 4-point star sparkle -->
+    <polygon points="0,-7 2,-2 7,0 2,2 0,7 -2,2 -7,0 -2,-2"
+             fill="#0741ff"/>
+  </g>
+
+  <!-- Small sparkle dots -->
+  <circle cx="78" cy="18" r="2.5" fill="#0741ff"/>
+  <circle cx="22" cy="20" r="1.8" fill="#0741ff"/>
+</svg>

@@ -1,0 +1,452 @@
+/* 
+  Design System CSS Variables
+  Generated from design-tokens.tokens.json 
+*/
+
+/*
+  Neue Haas Grotesk — used for all numeric/data displays.
+  Font files go in: public/fonts/neue-haas-grotesk/
+  See: public/fonts/neue-haas-grotesk/README.md
+  Uncomment @font-face blocks below once licensed .woff2 font files are placed in public/fonts/neue-haas-grotesk/.
+  Until then, the system fallback stack (Helvetica Neue → Arial → sans-serif) is used cleanly without 404 network errors.
+*/
+/*
+@font-face {
+  font-family: 'Neue Haas Grotesk';
+  src: url('/fonts/neue-haas-grotesk/NHaasGroteskDPW-45Lt.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Neue Haas Grotesk';
+  src: url('/fonts/neue-haas-grotesk/NHaasGroteskDPW-55Rg.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Neue Haas Grotesk';
+  src: url('/fonts/neue-haas-grotesk/NHaasGroteskDPW-65Md.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Neue Haas Grotesk';
+  src: url('/fonts/neue-haas-grotesk/NHaasGroteskDPW-75Bd.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+*/
+
+:root {
+  /* ==========================================
+     COLOR ROLES
+     These are the semantic colors intended for UI usage.
+     ========================================== */
+  --color-primary: #0741ffff;
+  --color-on-primary: #ffffffff;
+  --color-primary-container: #ccd8ffff;
+  --color-on-primary-container: #002499ff;
+  --color-secondary: #0030ccff;
+  --color-on-secondary: #ffffffff;
+  --color-secondary-container: #ccd8ffff;
+  --color-on-secondary-container: #002499ff;
+  --color-tertiary: #0030ccff;
+  --color-on-tertiary: #ffffffff;
+  --color-tertiary-container: #ccd8ffff;
+  --color-on-tertiary-container: #002499ff;
+  --color-surface: #fafafaff;
+  --color-on-surface: #191919ff;
+  --color-surface-variant: #e6e6e6ff;
+  --color-on-surface-variant: #4c4c4cff;
+  --color-surface-container-highest: #e6e6e6ff;
+  --color-surface-container-high: #ebebebff;
+  --color-surface-container: #f0f0f0ff;
+  --color-surface-container-low: #f5f5f5ff;
+  --color-surface-container-lowest: #ffffffff;
+  --color-inverse-surface: #333333ff;
+  --color-inverse-on-surface: #f2f2f2ff;
+  --color-surface-tint: #0030ccff;
+  --color-outline: #e6e6e6ff;
+  --color-error: #cc0000ff;
+  --color-on-error: #ffffffff;
+  --color-error-container: #ffccccff;
+  --color-on-error-container: #990000ff;
+  --color-add-on-primary-fixed: #ccd8ffff;
+  --color-on-primary-fixed: #000c33ff;
+  --color-on-primary-fixed-dim: #99b1ffff;
+  --color-on-primary-fixed-variant: #002499ff;
+  --color-inverse-primary: #99b1ffff;
+  --color-add-on-secondary-fixed: #ccd8ffff;
+  --color-on-secondary-fixed: #000c33ff;
+  --color-on-secondary-fixed-dim: #99b1ffff;
+  --color-on-secondary-fixed-variant: #002499ff;
+  --color-add-on-surface-background: #fafafaff;
+  --color-on-surface-background: #191919ff;
+  --color-surface-bright: #fafafaff;
+  --color-on-surface-dim: #dededeff;
+  --color-shadow: #000000ff;
+  --color-scrim: #000000ff;
+
+  /* ==========================================
+     OTHER TOKENS
+     Typography, spacing, effects, etc.
+     ========================================== */
+  --effect-hard-shadow: 4px 6px 8px 0px #00000052;
+  --effect-medium-shadow: 2px 4px 6px 0px #00000047;
+  --effect-soft-shadow: 2px 2px 20px 0px #0000001f;
+  --spacing-collection-no-spacing: 0;
+  --spacing-collection-extra-small-spacing: 4;
+  --spacing-collection-small-spacing: 8;
+  --spacing-collection-medium-spacing: 12;
+  --spacing-collection-base-spacing: 16;
+  --spacing-collection-large-spacing: 20;
+  --spacing-collection-extra-large-spacing: 24;
+  --spacing-collection-very-large-spacing: 32;
+
+  /* ==========================================
+     FONT FAMILY TOKENS
+     DM Sans is loaded via next/font/google in layout.tsx.
+     Neue Haas Grotesk falls back to DM Sans → Helvetica Neue → Arial.
+     ========================================== */
+  --font-neue-haas-grotesk: 'Neue Haas Grotesk', var(--font-dm-sans, 'DM Sans', sans-serif), 'Helvetica Neue', Arial, sans-serif;
+  --typography-display-large-fontsize: clamp(2.25rem, 5vw + 0.5rem, 4rem);
+  --typography-display-large-textdecoration: none;
+  --typography-display-large-fontfamily: var(--font-dm-sans, 'DM Sans', sans-serif);
+  --typography-display-large-fontweight: 500;
+  --typography-display-large-fontstyle: normal;
+  --typography-display-large-fontstretch: normal;
+  --typography-display-large-letterspacing: clamp(-0.3125rem, -0.03rem - 0.4vw, -0.05rem);
+  --typography-display-large-lineheight: clamp(3.25rem, 7vw + 0.5rem, 6rem);
+  --typography-display-large-paragraphindent: 0;
+  --typography-display-large-paragraphspacing: 0;
+  --typography-display-large-textcase: none;
+  --typography-display-medium-fontsize: clamp(2rem, 5vw + 0.5rem, 3.125rem);
+  --typography-display-medium-textdecoration: none;
+  --typography-display-medium-fontfamily: var(--font-dm-sans, 'DM Sans', sans-serif);
+  --typography-display-medium-fontweight: 500;
+  --typography-display-medium-fontstyle: normal;
+  --typography-display-medium-fontstretch: normal;
+  --typography-display-medium-letterspacing: clamp(-0.034375rem, -0.005rem - 0.05vw, -0.01rem);
+  --typography-display-medium-lineheight: clamp(2.75rem, 6vw + 0.5rem, 4.6875rem);
+  --typography-display-medium-paragraphindent: 0;
+  --typography-display-medium-paragraphspacing: 0;
+  --typography-display-medium-textcase: none;
+  --typography-display-small-fontsize: clamp(1.75rem, 3vw + 0.5rem, 2.25rem);
+  --typography-display-small-textdecoration: none;
+  --typography-display-small-fontfamily: var(--font-dm-sans, 'DM Sans', sans-serif);
+  --typography-display-small-fontweight: 500;
+  --typography-display-small-fontstyle: normal;
+  --typography-display-small-fontstretch: normal;
+  --typography-display-small-letterspacing: clamp(-0.040625rem, -0.005rem - 0.05vw, -0.01rem);
+  --typography-display-small-lineheight: clamp(2.5rem, 4vw + 0.5rem, 3.375rem);
+  --typography-display-small-paragraphindent: 0;
+  --typography-display-small-paragraphspacing: 0;
+  --typography-display-small-textcase: none;
+  --typography-headline-large-fontsize: clamp(1.5rem, 2.5vw + 0.75rem, 2rem);
+  --typography-headline-large-textdecoration: none;
+  --typography-headline-large-fontfamily: var(--font-neue-haas-grotesk, var(--font-dm-sans, 'DM Sans', sans-serif));
+  --typography-headline-large-fontweight: 500;
+  --typography-headline-large-fontstyle: normal;
+  --typography-headline-large-fontstretch: normal;
+  --typography-headline-large-letterspacing: clamp(-0.096875rem, -0.01rem - 0.12vw, -0.02rem);
+  --typography-headline-large-lineheight: clamp(2.25rem, 3vw + 0.75rem, 3rem);
+  --typography-headline-large-paragraphindent: 0;
+  --typography-headline-large-paragraphspacing: 0;
+  --typography-headline-large-textcase: none;
+  --typography-headline-medium-fontsize: clamp(1.375rem, 2vw + 0.75rem, 1.75rem);
+  --typography-headline-medium-textdecoration: none;
+  --typography-headline-medium-fontfamily: var(--font-neue-haas-grotesk, var(--font-dm-sans, 'DM Sans', sans-serif));
+  --typography-headline-medium-fontweight: 500;
+  --typography-headline-medium-fontstyle: normal;
+  --typography-headline-medium-fontstretch: normal;
+  --typography-headline-medium-letterspacing: clamp(-0.053125rem, -0.008rem - 0.06vw, -0.015rem);
+  --typography-headline-medium-lineheight: clamp(2rem, 2.5vw + 0.75rem, 2.625rem);
+  --typography-headline-medium-paragraphindent: 0;
+  --typography-headline-medium-paragraphspacing: 0;
+  --typography-headline-medium-textcase: none;
+  --typography-headline-small-fontsize: clamp(1.25rem, 1.5vw + 0.75rem, 1.5rem);
+  --typography-headline-small-textdecoration: none;
+  --typography-headline-small-fontfamily: var(--font-neue-haas-grotesk, var(--font-dm-sans, 'DM Sans', sans-serif));
+  --typography-headline-small-fontweight: 500;
+  --typography-headline-small-fontstyle: normal;
+  --typography-headline-small-fontstretch: normal;
+  --typography-headline-small-letterspacing: clamp(-0.040625rem, -0.005rem - 0.05vw, -0.01rem);
+  --typography-headline-small-lineheight: clamp(1.875rem, 2vw + 0.75rem, 2.25rem);
+  --typography-headline-small-paragraphindent: 0;
+  --typography-headline-small-paragraphspacing: 0;
+  --typography-headline-small-textcase: none;
+  --typography-title-large-fontsize: clamp(1.125rem, 0.5vw + 1rem, 1.375rem);
+  --typography-title-large-textdecoration: none;
+  --typography-title-large-fontfamily: var(--font-dm-sans, 'DM Sans', sans-serif);
+  --typography-title-large-fontweight: 500;
+  --typography-title-large-fontstyle: normal;
+  --typography-title-large-fontstretch: normal;
+  --typography-title-large-letterspacing: clamp(-0.096875rem, -0.01rem - 0.12vw, -0.02rem);
+  --typography-title-large-lineheight: clamp(1.75rem, 1vw + 1.25rem, 2.0625rem);
+  --typography-title-large-paragraphindent: 0;
+  --typography-title-large-paragraphspacing: 0;
+  --typography-title-large-textcase: none;
+  --typography-title-medium-fontsize: clamp(0.875rem, 0.25vw + 0.8rem, 1rem);
+  --typography-title-medium-textdecoration: none;
+  --typography-title-medium-fontfamily: DM Sans;
+  --typography-title-medium-fontweight: 500;
+  --typography-title-medium-fontstyle: normal;
+  --typography-title-medium-fontstretch: normal;
+  --typography-title-medium-letterspacing: clamp(-0.078125rem, -0.01rem - 0.09vw, -0.02rem);
+  --typography-title-medium-lineheight: clamp(2.25rem, 1vw + 1.75rem, 2.625rem);
+  --typography-title-medium-paragraphindent: 0;
+  --typography-title-medium-paragraphspacing: 0;
+  --typography-title-medium-textcase: none;
+  --typography-title-small-fontsize: clamp(0.8125rem, 0.15vw + 0.75rem, 0.875rem);
+  --typography-title-small-textdecoration: none;
+  --typography-title-small-fontfamily: DM Sans;
+  --typography-title-small-fontweight: 500;
+  --typography-title-small-fontstyle: normal;
+  --typography-title-small-fontstretch: normal;
+  --typography-title-small-letterspacing: clamp(-0.040625rem, -0.005rem - 0.05vw, -0.01rem);
+  --typography-title-small-lineheight: clamp(1.1875rem, 0.3vw + 1rem, 1.3125rem);
+  --typography-title-small-paragraphindent: 0;
+  --typography-title-small-paragraphspacing: 0;
+  --typography-title-small-textcase: none;
+  --typography-body-large-fontsize: clamp(0.9375rem, 0.1vw + 0.9rem, 1rem);
+  --typography-body-large-textdecoration: none;
+  --typography-body-large-fontfamily: DM Sans;
+  --typography-body-large-fontweight: 500;
+  --typography-body-large-fontstyle: normal;
+  --typography-body-large-fontstretch: normal;
+  --typography-body-large-letterspacing: clamp(-0.078125rem, -0.01rem - 0.05vw, -0.02rem);
+  --typography-body-large-lineheight: clamp(1.375rem, 0.2vw + 1.3rem, 1.5rem);
+  --typography-body-large-paragraphindent: 0;
+  --typography-body-large-paragraphspacing: 0;
+  --typography-body-large-textcase: none;
+  --typography-body-medium-fontsize: clamp(0.8125rem, 0.1vw + 0.78rem, 0.875rem);
+  --typography-body-medium-textdecoration: none;
+  --typography-body-medium-fontfamily: DM Sans;
+  --typography-body-medium-fontweight: 500;
+  --typography-body-medium-fontstyle: normal;
+  --typography-body-medium-fontstretch: normal;
+  --typography-body-medium-letterspacing: clamp(-0.078125rem, -0.01rem - 0.05vw, -0.02rem);
+  --typography-body-medium-lineheight: clamp(1.2rem, 0.2vw + 1.1rem, 1.3125rem);
+  --typography-body-medium-paragraphindent: 0;
+  --typography-body-medium-paragraphspacing: 0;
+  --typography-body-medium-textcase: none;
+  --typography-body-small-fontsize: clamp(0.6875rem, 0.1vw + 0.65rem, 0.75rem);
+  --typography-body-small-textdecoration: none;
+  --typography-body-small-fontfamily: DM Sans;
+  --typography-body-small-fontweight: 500;
+  --typography-body-small-fontstyle: normal;
+  --typography-body-small-fontstretch: normal;
+  --typography-body-small-letterspacing: clamp(-0.065625rem, -0.01rem - 0.04vw, -0.02rem);
+  --typography-body-small-lineheight: clamp(1.05rem, 0.1vw + 1rem, 1.125rem);
+  --typography-body-small-paragraphindent: 0;
+  --typography-body-small-paragraphspacing: 0;
+  --typography-body-small-textcase: none;
+  --typography-label-large-fontsize: clamp(0.8125rem, 0.1vw + 0.78rem, 0.875rem);
+  --typography-label-large-textdecoration: none;
+  --typography-label-large-fontfamily: DM Sans;
+  --typography-label-large-fontweight: 500;
+  --typography-label-large-fontstyle: normal;
+  --typography-label-large-fontstretch: normal;
+  --typography-label-large-letterspacing: clamp(-0.034375rem, -0.005rem - 0.02vw, -0.01rem);
+  --typography-label-large-lineheight: clamp(1.2rem, 0.2vw + 1.1rem, 1.3125rem);
+  --typography-label-large-paragraphindent: 0;
+  --typography-label-large-paragraphspacing: 0;
+  --typography-label-large-textcase: none;
+  --typography-label-medium-fontsize: clamp(0.6875rem, 0.1vw + 0.65rem, 0.75rem);
+  --typography-label-medium-textdecoration: none;
+  --typography-label-medium-fontfamily: DM Sans;
+  --typography-label-medium-fontweight: 500;
+  --typography-label-medium-fontstyle: normal;
+  --typography-label-medium-fontstretch: normal;
+  --typography-label-medium-letterspacing: clamp(-0.034375rem, -0.005rem - 0.02vw, -0.01rem);
+  --typography-label-medium-lineheight: clamp(1.05rem, 0.1vw + 1rem, 1.125rem);
+  --typography-label-medium-paragraphindent: 0;
+  --typography-label-medium-paragraphspacing: 0;
+  --typography-label-medium-textcase: none;
+  --typography-label-small-fontsize: clamp(0.625rem, 0.1vw + 0.58rem, 0.6875rem);
+  --typography-label-small-textdecoration: none;
+  --typography-label-small-fontfamily: DM Sans;
+  --typography-label-small-fontweight: 500;
+  --typography-label-small-fontstyle: normal;
+  --typography-label-small-fontstretch: normal;
+  --typography-label-small-letterspacing: clamp(-0.034375rem, -0.005rem - 0.02vw, -0.01rem);
+  --typography-label-small-lineheight: clamp(0.95rem, 0.1vw + 0.9rem, 1.03125rem);
+  --typography-label-small-paragraphindent: 0;
+  --typography-label-small-paragraphspacing: 0;
+  --typography-label-small-textcase: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-primary: #99b1ffff;
+    --color-on-primary: #001859ff;
+    --color-primary-container: #002499ff;
+    --color-on-primary-container: #ccd8ffff;
+    --color-secondary: #99b1ffff;
+    --color-on-secondary: #001859ff;
+    --color-secondary-container: #002499ff;
+    --color-on-secondary-container: #ccd8ffff;
+    --color-tertiary: #99b1ffff;
+    --color-on-tertiary: #001859ff;
+    --color-tertiary-container: #002499ff;
+    --color-on-tertiary-container: #ccd8ffff;
+
+    --color-surface: #121212ff;
+    --color-on-surface: #e3e3e3ff;
+    --color-surface-variant: #333333ff;
+    --color-on-surface-variant: #c4c4c4ff;
+
+    --color-surface-container-highest: #333333ff;
+    --color-surface-container-high: #2b2b2bff;
+    --color-surface-container: #242424ff;
+    --color-surface-container-low: #1c1c1cff;
+    --color-surface-container-lowest: #0f0f0fff;
+
+    --color-inverse-surface: #e3e3e3ff;
+    --color-inverse-on-surface: #191919ff;
+    --color-surface-tint: #99b1ffff;
+    --color-outline: #5c5c5cff;
+
+    --color-error: #ffb4abff;
+    --color-on-error: #690005ff;
+    --color-error-container: #93000aff;
+    --color-on-error-container: #ffdad6ff;
+
+    --color-add-on-primary-fixed: #002499ff;
+    --color-on-primary-fixed: #ccd8ffff;
+    --color-on-primary-fixed-dim: #001859ff;
+    --color-on-primary-fixed-variant: #99b1ffff;
+    --color-inverse-primary: #0741ffff;
+
+    --color-add-on-secondary-fixed: #002499ff;
+    --color-on-secondary-fixed: #ccd8ffff;
+    --color-on-secondary-fixed-dim: #001859ff;
+    --color-on-secondary-fixed-variant: #99b1ffff;
+
+    --color-add-on-surface-background: #121212ff;
+    --color-on-surface-background: #e3e3e3ff;
+    --color-surface-bright: #3a3a3aff;
+    --color-on-surface-dim: #121212ff;
+
+    --color-shadow: #000000ff;
+    --color-scrim: #000000ff;
+  }
+}
+
+/* 
+   Note: Primitive colors from 'primitive color collection' 
+   are resolved directly into the Color Roles above and are 
+   intentionally NOT exported as CSS variables to prevent 
+   them from being applied directly on the UI as requested.
+*/
+
+/* Responsive Header Utilities */
+.mobile-menu-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: none;
+}
+
+/* Auth Container Responsiveness */
+.auth-layout {
+  padding: calc(var(--spacing-collection-extra-large-spacing) * 1px);
+}
+.auth-card {
+  padding: calc(var(--spacing-collection-very-large-spacing) * 1px);
+}
+.auth-card input:focus {
+  border-color: var(--color-primary);
+  outline: 2px solid var(--color-primary);
+  outline-offset: -1px;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  border-color: var(--color-primary);
+  outline: 2px solid var(--color-primary);
+  outline-offset: -1px;
+}
+
+@media (max-width: 768px) {
+  .desktop-nav {
+    display: none !important;
+  }
+
+  .mobile-menu-btn {
+    display: block !important;
+  }
+
+  .hero-cta-btn {
+    display: block !important;
+    align-self: stretch !important;
+    box-sizing: border-box !important;
+    text-align: center;
+  }
+
+  .auth-layout {
+    padding: calc(var(--spacing-collection-medium-spacing) * 1px);
+  }
+  .auth-card {
+    padding: calc(var(--spacing-collection-large-spacing) * 1px);
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-nav-container {
+    display: none !important;
+  }
+}
+
+/* Hero Display Text - Responsive sizing */
+.hero-display-text {
+  font-size: clamp(2rem, 5vw + 0.5rem, 3.125rem) !important;
+  line-height: clamp(2.75rem, 6vw + 0.5rem, 4.6875rem) !important;
+  letter-spacing: clamp(-0.034375rem, -0.005rem - 0.05vw, -0.01rem) !important;
+}
+
+/* Nav Link Hover Effects */
+.nav-link {
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: var(--color-primary) !important;
+}
+
+.nav-link-active {
+  color: var(--color-primary) !important;
+}
+
+/* Header CTA Hover Shadow */
+.header-cta {
+  transition: box-shadow 0.2s ease;
+}
+
+.header-cta:hover {
+  box-shadow: var(--effect-soft-shadow);
+}
+
+/* Dashboard Primary Action Button Hover */
+.primary-action-btn {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.primary-action-btn:hover {
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+
+/* Accessibility: Focus Styles */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}

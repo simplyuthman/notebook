@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Allow: /signup
+Disallow: /signin
+Disallow: /dashboard
+Disallow: /onboarding
+Disallow: /api/
+
+# Sitemap — update when a sitemap.ts is added
+# Sitemap: https://notesbook.app/sitemap.xml
