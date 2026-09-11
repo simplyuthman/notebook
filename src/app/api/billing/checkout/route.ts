@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { db } from "@/server/db";
 import { initializeProCheckout, type BillingInterval } from "@/server/billing";
+import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 
 const VALID_INTERVALS: BillingInterval[] = ["MONTHLY", "YEARLY"];
 
@@ -13,6 +14,30 @@ export async function POST(req: Request) {
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized. Please sign in." }, { status: 401 });
+    }
+
+    // 2. Rate Limiting (max 10 attempts per 15 min window per user)
+    const clientIp = getClientIp(req);
+    const rateLimitKey = `checkout:${userId || clientIp}`;
+    const rateLimit = checkRateLimit(rateLimitKey, {
+      maxAttempts: 10,
+      windowMs: 15 * 60 * 1000,
+    });
+
+    if (!rateLimit.success) {
+      const retryAfter = Math.ceil((rateLimit.resetTime - Date.now()) / 1000);
+      return NextResponse.json(
+        { error: "Too many checkout attempts. Please wait before trying again." },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(retryAfter > 0 ? retryAfter : 60),
+            "X-RateLimit-Limit": "10",
+            "X-RateLimit-Remaining": "0",
+            "X-RateLimit-Reset": String(rateLimit.resetTime),
+          },
+        }
+      );
     }
 
     // 2. Validate interval

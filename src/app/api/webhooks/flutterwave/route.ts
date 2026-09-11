@@ -1,22 +1,16 @@
 import { NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "crypto";
-import { createPaymentLog, settleProSubscription } from "@/server/billing";
+import { createPaymentLog, parseProCheckoutReference, settleProSubscription } from "@/server/billing";
+import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 
 /**
  * Flutterwave webhook receiver for subscription payments.
  *
  * Order of operations (never reordered):
- *  1. Verify the signature against the RAW body BEFORE parsing anything.
- *     Two styles are accepted because Flutterwave uses both across API
- *     generations:
- *       - `flutterwave-signature`: HMAC-SHA256(rawBody, secret), base64
- *       - `verif-hash`: plain equality with the secret hash (v3 standard)
- *  2. Ignore events we don't handle (acknowledge so retries stop).
+ *  1. Apply Rate Limiting (max 10 attempts per 15 min window per IP).
+ *  2. Verify signature against RAW body BEFORE parsing anything.
  *  3. Delegate to settleProSubscription — idempotency check, API
  *     re-verification, then the paired subscription+ledger write (R33).
- *
- * NOTE: webhooks only reach a publicly deployed URL. Local development
- * settles payments via the redirect return in dashboard/page.tsx instead.
  */
 
 interface WebhookPayload {
@@ -59,12 +53,36 @@ function isSignatureValid(
 }
 
 export async function POST(req: Request) {
+  // 1. Rate Limiting (max 10 attempts per 15 minutes window)
+  const clientIp = getClientIp(req);
+  const rateLimit = checkRateLimit(`webhook:${clientIp}`, {
+    maxAttempts: 10,
+    windowMs: 15 * 60 * 1000,
+  });
+
+  if (!rateLimit.success) {
+    console.warn("billing.webhook.rate_limited", { clientIp });
+    const retryAfter = Math.ceil((rateLimit.resetTime - Date.now()) / 1000);
+    return NextResponse.json(
+      { error: "Too many webhook requests. Please retry later." },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(retryAfter > 0 ? retryAfter : 60),
+          "X-RateLimit-Limit": "10",
+          "X-RateLimit-Remaining": "0",
+          "X-RateLimit-Reset": String(rateLimit.resetTime),
+        },
+      }
+    );
+  }
+
   const rawBody = await req.text();
   const secret = process.env.FLUTTERWAVE_WEBHOOK_SECRET;
   const hmacSignature = req.headers.get("flutterwave-signature");
   const verifHash = req.headers.get("verif-hash");
 
-  // 1. Signature verification FIRST.
+  // 2. Signature verification FIRST.
   if (!secret || !isSignatureValid(rawBody, secret, hmacSignature, verifHash)) {
     console.warn("billing.webhook.discarded", {
       reason: !secret ? "unconfigured" : "signature_mismatch",
@@ -98,8 +116,10 @@ export async function POST(req: Request) {
   const data = payload.data ?? {};
   const reference = typeof data.tx_ref === "string" ? data.tx_ref : null;
   const providerTxId = data.id != null ? String(data.id) : null;
+  const parsed = reference ? parseProCheckoutReference(reference) : null;
 
   await createPaymentLog({
+    userId: parsed?.userId ?? null,
     reference: reference ?? "WEBHOOK_NO_REF",
     providerTxId,
     event: "WEBHOOK_RECEIVED",

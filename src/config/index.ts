@@ -15,6 +15,21 @@ export const config = {
   },
   aiCostCeiling: 2000, // per book cost ceiling in kobo
   aiCostPerImage: 2000, // approx cost per image in minor units (kobo)
+  ai: {
+    gemini: {
+      model: "gemini-2.5-flash",
+      temperature: 0.2,
+      maxOutputTokens: 8192,
+      costPerImageMinor: 2000, // cost estimate per transcription in minor units (kobo)
+    },
+    deepseek: {
+      baseURL: "https://api.deepseek.com",
+      model: "deepseek-chat", // or "deepseek-reasoner"
+      temperature: 0.3,
+      maxTokens: 4096,
+      timeoutMs: 60000,
+    },
+  },
   billing: {
     currency: "NGN",
     pro: {

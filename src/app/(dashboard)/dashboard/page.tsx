@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { redirect, notFound } from 'next/navigation';
 import { getBookDetails, serializeBookForClient } from '@/server/books';
-import { settleProSubscription } from '@/server/billing';
+import { createPaymentLog, settleProSubscription } from '@/server/billing';
 import LibraryView from './LibraryView';
 import BookViewClient from './BookViewClient';
 
@@ -23,6 +23,13 @@ type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 export default async function DashboardPage(props: { searchParams: SearchParams }) {
   const searchParams = await props.searchParams;
   const isNewUser = searchParams.new_user === 'true';
+
+  const cookieStore = await cookies();
+  const userId = cookieStore.get('userId')?.value ?? null;
+
+  if (!userId) {
+    redirect('/auth');
+  }
 
   // Payment return from Flutterwave's hosted checkout. Settle server-side
   // (verify via API + paired ledger write) instead of trusting the redirect.
@@ -51,6 +58,21 @@ export default async function DashboardPage(props: { searchParams: SearchParams 
   if (rawTxRef && (isSuccessStatus || rawTxId)) {
     let outcome: string | null = null;
     try {
+      if (userId) {
+        await createPaymentLog({
+          userId,
+          reference: rawTxRef,
+          providerTxId: rawTxId,
+          provider: 'FLUTTERWAVE',
+          event: 'CALLBACK_VERIFIED',
+          status: 'SUCCESS',
+          rawPayload: JSON.stringify({
+            status: rawStatus,
+            transaction_id: rawTxId,
+            tx_ref: rawTxRef,
+          }),
+        });
+      }
       outcome = await settleProSubscription(rawTxRef, rawTxId);
     } catch (err) {
       // Never block the dashboard on settlement errors; the webhook remains
@@ -73,13 +95,6 @@ export default async function DashboardPage(props: { searchParams: SearchParams 
   }
 
   // Book view — ownership is enforced inside getBookDetails (userId + bookIdentifier).
-  const cookieStore = await cookies();
-  const userId = cookieStore.get('userId')?.value ?? null;
-
-  if (!userId) {
-    redirect('/auth');
-  }
-
   const book = await getBookDetails(userId, bookIdentifier);
 
   if (!book) {

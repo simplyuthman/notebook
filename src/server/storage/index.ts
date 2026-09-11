@@ -1,10 +1,127 @@
-import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { db } from "@/server/db";
 import { config } from "@/config";
 
 export function buildStorageKey(userId: string, bookId: string, imageId: string, filename: string) {
-  const ext = filename.split('.').pop() || 'jpeg';
+  const ext = filename.split(".").pop() || "jpeg";
   return `users/${userId}/books/${bookId}/images/${imageId}.${ext}`;
+}
+
+export function isObjectStorageConfigured(): boolean {
+  const { R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET } = process.env;
+  if (!R2_ACCOUNT_ID || !R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY || !R2_BUCKET) {
+    return false;
+  }
+  // If variables are still default placeholders from documentation/examples
+  const isPlaceholder =
+    R2_ACCOUNT_ID.includes("your_") ||
+    R2_ACCESS_KEY_ID.includes("your_") ||
+    R2_SECRET_ACCESS_KEY.includes("your_") ||
+    R2_BUCKET.includes("your_");
+  return !isPlaceholder;
+}
+
+export function getStorageClient(): S3Client | null {
+  const accountId = process.env.R2_ACCOUNT_ID;
+  const accessKeyId = process.env.R2_ACCESS_KEY_ID;
+  const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
+
+  if (!accountId || !accessKeyId || !secretAccessKey) {
+    return null;
+  }
+
+  return new S3Client({
+    region: "auto",
+    endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+    credentials: { accessKeyId, secretAccessKey },
+  });
+}
+
+/**
+ * Generates a short-lived (5 min) presigned PUT URL for direct client-to-storage upload (R7).
+ * Avoids proxying raw binary bytes through the Next.js server.
+ */
+export async function createPresignedUploadUrl(
+  storageKey: string,
+  contentType: string,
+  expiresInSeconds = 300
+): Promise<string | null> {
+  const client = getStorageClient();
+  const bucket = process.env.R2_BUCKET;
+
+  if (!client || !bucket) {
+    return null;
+  }
+
+  const command = new PutObjectCommand({
+    Bucket: bucket,
+    Key: storageKey,
+    ContentType: contentType,
+  });
+
+  return getSignedUrl(client, command, { expiresIn: expiresInSeconds });
+}
+
+/**
+ * Generates a short-lived (5 min) presigned GET URL so the browser can
+ * display a private R2 image without exposing the bucket publicly.
+ * Returns null when object storage is not configured (dev fallback).
+ */
+export async function createPresignedReadUrl(
+  storageKey: string,
+  expiresInSeconds = 300
+): Promise<string | null> {
+  const client = getStorageClient();
+  const bucket = process.env.R2_BUCKET;
+
+  if (!client || !bucket) {
+    return null;
+  }
+
+  const command = new GetObjectCommand({
+    Bucket: bucket,
+    Key: storageKey,
+  });
+
+  return getSignedUrl(client, command, { expiresIn: expiresInSeconds });
+}
+
+/**
+ * Downloads an object buffer from cloud storage (used by the AI worker pipeline).
+ */
+export async function getObjectBuffer(storageKey: string): Promise<Buffer | null> {
+  const client = getStorageClient();
+  const bucket = process.env.R2_BUCKET;
+
+  if (!client || !bucket) {
+    console.warn("storage.get.skipped_no_object_storage_config", { storageKey });
+    return null;
+  }
+
+  try {
+    const response = await client.send(
+      new GetObjectCommand({
+        Bucket: bucket,
+        Key: storageKey,
+      })
+    );
+
+    if (!response.Body) {
+      return null;
+    }
+
+    const byteArray = await response.Body.transformToByteArray();
+    return Buffer.from(byteArray);
+  } catch (error) {
+    console.error("storage.get.failed", { storageKey, error });
+    throw error;
+  }
 }
 
 /**
@@ -16,23 +133,20 @@ export function buildStorageKey(userId: string, bookId: string, imageId: string,
  * this logs and no-ops so a delete can't fail for a file that doesn't exist.
  */
 export async function deleteObject(storageKey: string): Promise<void> {
-  const accountId = process.env.R2_ACCOUNT_ID;
-  const accessKeyId = process.env.R2_ACCESS_KEY_ID;
-  const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
+  const client = getStorageClient();
   const bucket = process.env.R2_BUCKET;
 
-  if (!accountId || !accessKeyId || !secretAccessKey || !bucket) {
+  if (!client || !bucket) {
     console.warn("storage.delete.skipped_no_object_storage_config", { storageKey });
     return;
   }
 
-  const client = new S3Client({
-    region: "auto",
-    endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-    credentials: { accessKeyId, secretAccessKey },
-  });
-
-  await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: storageKey }));
+  try {
+    await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: storageKey }));
+  } catch (error) {
+    console.error("storage.delete.failed", { storageKey, error });
+    // Surface or log failure according to error-handling standards
+  }
 }
 
 export async function checkUploadAllowance(userId: string, uploadCount: number, bookId: string) {

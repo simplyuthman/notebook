@@ -72,14 +72,13 @@ export default function UploadNotesModal({
     setError(null);
 
     try {
-      const filePayloads = await Promise.all(
-        files.map(async (f) => ({
-          name: f.name,
-          type: f.type || "image/jpeg",
-          size: f.size,
-        }))
-      );
+      const filePayloads = files.map((f) => ({
+        name: f.name,
+        type: f.type || "image/jpeg",
+        size: f.size,
+      }));
 
+      // 1. Request presigned upload URLs from server
       const res = await fetch("/api/upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -92,7 +91,74 @@ export default function UploadNotesModal({
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Failed to upload notes.");
+        throw new Error(data.error || "Failed to initiate upload.");
+      }
+
+      // 2. Direct-to-storage upload if presigned URLs were provided (Cloudflare R2 / S3)
+      if (data.hasObjectStorage && Array.isArray(data.uploads)) {
+        const uploadedImageIds: string[] = [];
+        const uploadErrors: string[] = [];
+
+        await Promise.all(
+          data.uploads.map(async (uploadItem: { id: string; name: string; uploadUrl: string | null }, idx: number) => {
+            const file = files[idx];
+            if (uploadItem.uploadUrl && file) {
+              try {
+                const putRes = await fetch(uploadItem.uploadUrl, {
+                  method: "PUT",
+                  headers: {
+                    "Content-Type": file.type || "image/jpeg",
+                  },
+                  body: file,
+                });
+
+                if (!putRes.ok) {
+                  throw new Error(`Storage upload failed for ${uploadItem.name}`);
+                }
+                uploadedImageIds.push(uploadItem.id);
+              } catch (putErr) {
+                console.error("Direct storage upload error:", putErr);
+                uploadErrors.push(uploadItem.name);
+              }
+            }
+          })
+        );
+
+        if (uploadErrors.length > 0 && uploadedImageIds.length === 0) {
+          throw new Error(`Failed to upload images to cloud storage: ${uploadErrors.join(", ")}`);
+        }
+
+        // 3. Mark successful uploads as UPLOADED
+        if (uploadedImageIds.length > 0) {
+          await fetch("/api/upload", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              bookId,
+              imageIds: uploadedImageIds,
+            }),
+          });
+        }
+      }
+
+      // 2b. Dev-mode local fallback — upload binaries to server when R2 is not configured
+      if (!data.hasObjectStorage && Array.isArray(data.uploads)) {
+        await Promise.all(
+          data.uploads.map(async (uploadItem: { id: string; name: string }, idx: number) => {
+            const file = files[idx];
+            if (!file) return;
+            try {
+              const formData = new FormData();
+              formData.append("file", file);
+              await fetch(`/api/images/${uploadItem.id}/data`, {
+                method: "POST",
+                body: formData,
+              });
+            } catch (localErr) {
+              console.warn("Local image save failed (preview may be unavailable):", localErr);
+            }
+          })
+        );
       }
 
       setUploadedCount(files.length);

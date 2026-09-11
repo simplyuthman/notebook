@@ -36,3 +36,6 @@ next-env.d.ts
 
 # prisma generated engines
 prisma/migrations/.temp
+
+# local dev image uploads (dev-mode fallback when R2 is not configured)
+/.uploads
