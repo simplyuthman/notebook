@@ -13,6 +13,10 @@ export const transcribeQueue = new Queue(TRANSCRIBE_QUEUE_NAME, {
   },
 });
 
+transcribeQueue.on("error", (err: Error) => {
+  // Catch queue connection errors
+});
+
 export interface TranscribeJobData {
   jobId: string;
   bookId: string;

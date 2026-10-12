@@ -100,6 +100,21 @@ export async function getObjectBuffer(storageKey: string): Promise<Buffer | null
   const bucket = process.env.R2_BUCKET;
 
   if (!client || !bucket) {
+    try {
+      const { readFile } = await import("fs/promises");
+      const { existsSync } = await import("fs");
+      const path = await import("path");
+      const parts = storageKey.split("/");
+      const filename = parts[parts.length - 1];
+      if (filename) {
+        const localPath = path.join(process.cwd(), ".uploads", filename);
+        if (existsSync(localPath)) {
+          return await readFile(localPath);
+        }
+      }
+    } catch (err) {
+      console.warn("storage.get.local_fallback_error", { storageKey, err });
+    }
     console.warn("storage.get.skipped_no_object_storage_config", { storageKey });
     return null;
   }
