@@ -7,7 +7,7 @@ import { createAndStoreVerificationCode } from "@/server/auth/verification";
 
 const signupSchema = z.object({
   email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 8 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
   name: z.string().optional(),
   idempotencyKey: z.string().optional(),
 });

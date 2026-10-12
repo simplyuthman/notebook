@@ -82,7 +82,7 @@ export default function CancellationFlow({
           </div>
 
           <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface, #191919)', lineHeight: 1.6, marginBottom: '16px' }}>
-            We're sorry to see you go! Before you proceed, please review what happens upon cancellation:
+            We&apos;re sorry to see you go! Before you proceed, please review what happens upon cancellation:
           </p>
 
           <div
@@ -148,7 +148,7 @@ export default function CancellationFlow({
             Help us improve NotesBook
           </h3>
           <p style={{ margin: '0 0 16px', fontSize: '0.875rem', color: 'var(--color-on-surface-variant, #4c4c4c)' }}>
-            Please let us know why you're cancelling so we can make the product better:
+            Please let us know why you&apos;re cancelling so we can make the product better:
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>

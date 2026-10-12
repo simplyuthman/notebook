@@ -10,6 +10,11 @@ const REDIS_URL = process.env.REDIS_URL ?? "redis://localhost:6379";
 // workers can block on BLPOP without tripping ioredis's retry limit.
 export const connection = new IORedis(REDIS_URL, {
   maxRetriesPerRequest: null,
+  enableOfflineQueue: true,
+});
+
+connection.on("error", (err: Error) => {
+  // Catch ECONNREFUSED or disconnection errors so they don't become unhandled errors
 });
 
 // Queue used by the app (src/app/) to enqueue verification emails. The actual
@@ -23,6 +28,10 @@ export const emailQueue = new Queue(EMAIL_QUEUE_NAME, {
     removeOnComplete: 100,
     removeOnFail: 1000,
   },
+});
+
+emailQueue.on("error", (err: Error) => {
+  // Catch queue connection errors
 });
 
 export interface VerificationEmailJobData {

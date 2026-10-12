@@ -13,8 +13,9 @@ export const config = {
     maxFileSizeMB: 10,
     maxFileSizeBytes: 10 * 1024 * 1024 // 10 MB in bytes
   },
-  aiCostCeiling: 2000, // per book cost ceiling in kobo
-  aiCostPerImage: 2000, // approx cost per image in minor units (kobo)
+  // Set above the largest allowed book (300 images * 2,000 kobo = 600,000 kobo) per PRD Section 6
+  aiCostCeiling: 650000, // per book cost ceiling in kobo (₦6,500)
+  aiCostPerImage: 2000, // approx cost per image in minor units (20 Naira = 2,000 kobo)
   ai: {
     gemini: {
       model: "gemini-2.5-flash",
