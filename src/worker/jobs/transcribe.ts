@@ -11,28 +11,32 @@ import type { SectionConfidence, FlagType } from "@prisma/client";
  * PRD Section 7: "A failed image does not fail the batch... reaches a PARTIAL outcome and continues."
  */
 async function rollUpBatchStatus(bookId: string): Promise<void> {
-  const allJobs = await db.job.findMany({
-    where: { bookId, type: "TRANSCRIBE" },
-    select: { status: true },
-  });
+  try {
+    const allJobs = await db.job.findMany({
+      where: { bookId, type: "TRANSCRIBE" },
+      select: { status: true },
+    });
 
-  const hasPending = allJobs.some(
-    (j) => j.status === "QUEUED" || j.status === "RUNNING"
-  );
+    const hasPending = allJobs.some(
+      (j) => j.status === "QUEUED" || j.status === "RUNNING"
+    );
 
-  if (!hasPending && allJobs.length > 0) {
-    const anySucceeded = allJobs.some((j) => j.status === "SUCCEEDED");
-    if (anySucceeded) {
-      await db.book.update({
-        where: { id: bookId },
-        data: { status: "READY" },
-      });
-    } else {
-      await db.book.update({
-        where: { id: bookId },
-        data: { status: "DRAFT" },
-      });
+    if (!hasPending && allJobs.length > 0) {
+      const anySucceeded = allJobs.some((j) => j.status === "SUCCEEDED");
+      if (anySucceeded) {
+        await db.book.update({
+          where: { id: bookId },
+          data: { status: "READY" },
+        });
+      } else {
+        await db.book.update({
+          where: { id: bookId },
+          data: { status: "DRAFT" },
+        });
+      }
     }
+  } catch (rollupErr) {
+    console.warn("worker.transcribe.rollup_notice", { bookId, rollupErr });
   }
 }
 
@@ -172,9 +176,6 @@ export async function processTranscribeJob(jobData: TranscribeJobData): Promise<
         data: { status: "SUCCEEDED", error: null },
       });
     });
-
-    // Check if the entire book processing has completed
-    await rollUpBatchStatus(bookId);
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
     console.error("worker.transcribe.failed", {
@@ -196,7 +197,13 @@ export async function processTranscribeJob(jobData: TranscribeJobData): Promise<
       where: { id: imageId },
       data: { status: "FAILED" },
     });
+  }
 
+  // Check if the entire book processing has completed (isolated so rollup errors
+  // cannot retroactively overwrite an already-committed SUCCEEDED job to FAILED)
+  try {
     await rollUpBatchStatus(bookId);
+  } catch (rollupErr) {
+    console.warn("worker.transcribe.rollup_notice", { bookId, rollupErr });
   }
 }
