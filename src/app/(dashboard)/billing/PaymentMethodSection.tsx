@@ -97,7 +97,7 @@ export default function PaymentMethodSection({
               padding: '8px 16px',
               borderRadius: '8px',
               border: '1px solid var(--color-outline, #e6e6e6)',
-              backgroundColor: 'var(--color-on-primary, #ffffff)',
+              backgroundColor: 'var(--color-surface-container-lowest, #ffffff)',
               color: 'var(--color-on-surface, #191919)',
               fontWeight: 600,
               fontSize: '0.875rem',

@@ -28,7 +28,7 @@ Governs UI consistency. The design system is no longer a placeholder — it's a 
 
 - Every text style in the UI maps to one of the defined type roles (`display-large/medium/small`, `headline-large/medium/small`, `title-large/medium/small`, `body-large/medium/small`, `label-large/medium/small`) with its paired font size, weight, line height, and letter spacing pulled from the corresponding token group. No component sets `font-size` or `line-height` as a standalone override.
 - Body text used for sustained reading — the finished-book reader view (R24) and the section editor — uses `body-large` or `body-medium`. This is a study product; reading legibility is a functional requirement, not a stylistic nicety, so this pairing is not swapped for a smaller label-sized style to "fit more on screen."
-- `DM Sans` is the only typeface used anywhere in the product. No fallback stack substitutions beyond standard system-font fallback for load failure.
+- `Roboto` (the Material Design 3 default typeface) is the only typeface used anywhere in the product. No fallback stack substitutions beyond standard system-font fallback for load failure.
 
 ## Spacing
 

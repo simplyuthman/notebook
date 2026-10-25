@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { getUserSubscriptionInfo } from '@/server/billing';
 import UserAvatarMenu from './UserAvatarMenu';
 import UpgradePlanButton from './UpgradePlanButton';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default async function DashboardLayout({
   children,
@@ -84,6 +85,7 @@ export default async function DashboardLayout({
               gap: 'calc(var(--spacing-collection-medium-spacing, 12) * 1px)',
             }}
           >
+            <ThemeToggle />
             <UpgradePlanButton currentPlan={currentPlan} currentInterval={currentInterval} />
             <UserAvatarMenu displayName={displayName} initials={initials} />
           </div>

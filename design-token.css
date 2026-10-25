@@ -70,7 +70,7 @@
   --spacing-collection-very-large-spacing: 32;
   --typography-display-large-fontsize: 4rem;
   --typography-display-large-textdecoration: none;
-  --typography-display-large-fontfamily: DM Sans;
+  --typography-display-large-fontfamily: Roboto;
   --typography-display-large-fontweight: 500;
   --typography-display-large-fontstyle: normal;
   --typography-display-large-fontstretch: normal;
@@ -81,7 +81,7 @@
   --typography-display-large-textcase: none;
   --typography-display-medium-fontsize: 3.125rem;
   --typography-display-medium-textdecoration: none;
-  --typography-display-medium-fontfamily: DM Sans;
+  --typography-display-medium-fontfamily: Roboto;
   --typography-display-medium-fontweight: 500;
   --typography-display-medium-fontstyle: normal;
   --typography-display-medium-fontstretch: normal;
@@ -92,7 +92,7 @@
   --typography-display-medium-textcase: none;
   --typography-display-small-fontsize: 2.25rem;
   --typography-display-small-textdecoration: none;
-  --typography-display-small-fontfamily: DM Sans;
+  --typography-display-small-fontfamily: Roboto;
   --typography-display-small-fontweight: 500;
   --typography-display-small-fontstyle: normal;
   --typography-display-small-fontstretch: normal;
@@ -103,7 +103,7 @@
   --typography-display-small-textcase: none;
   --typography-headline-large-fontsize: 2rem;
   --typography-headline-large-textdecoration: none;
-  --typography-headline-large-fontfamily: DM Sans;
+  --typography-headline-large-fontfamily: Roboto;
   --typography-headline-large-fontweight: 500;
   --typography-headline-large-fontstyle: normal;
   --typography-headline-large-fontstretch: normal;
@@ -114,7 +114,7 @@
   --typography-headline-large-textcase: none;
   --typography-headline-medium-fontsize: 1.75rem;
   --typography-headline-medium-textdecoration: none;
-  --typography-headline-medium-fontfamily: DM Sans;
+  --typography-headline-medium-fontfamily: Roboto;
   --typography-headline-medium-fontweight: 500;
   --typography-headline-medium-fontstyle: normal;
   --typography-headline-medium-fontstretch: normal;
@@ -125,7 +125,7 @@
   --typography-headline-medium-textcase: none;
   --typography-headline-small-fontsize: 1.5rem;
   --typography-headline-small-textdecoration: none;
-  --typography-headline-small-fontfamily: DM Sans;
+  --typography-headline-small-fontfamily: Roboto;
   --typography-headline-small-fontweight: 500;
   --typography-headline-small-fontstyle: normal;
   --typography-headline-small-fontstretch: normal;
@@ -136,7 +136,7 @@
   --typography-headline-small-textcase: none;
   --typography-title-large-fontsize: 1.375rem;
   --typography-title-large-textdecoration: none;
-  --typography-title-large-fontfamily: DM Sans;
+  --typography-title-large-fontfamily: Roboto;
   --typography-title-large-fontweight: 500;
   --typography-title-large-fontstyle: normal;
   --typography-title-large-fontstretch: normal;
@@ -147,7 +147,7 @@
   --typography-title-large-textcase: none;
   --typography-title-medium-fontsize: 1rem;
   --typography-title-medium-textdecoration: none;
-  --typography-title-medium-fontfamily: DM Sans;
+  --typography-title-medium-fontfamily: Roboto;
   --typography-title-medium-fontweight: 500;
   --typography-title-medium-fontstyle: normal;
   --typography-title-medium-fontstretch: normal;
@@ -158,7 +158,7 @@
   --typography-title-medium-textcase: none;
   --typography-title-small-fontsize: 0.875rem;
   --typography-title-small-textdecoration: none;
-  --typography-title-small-fontfamily: DM Sans;
+  --typography-title-small-fontfamily: Roboto;
   --typography-title-small-fontweight: 500;
   --typography-title-small-fontstyle: normal;
   --typography-title-small-fontstretch: normal;
@@ -169,7 +169,7 @@
   --typography-title-small-textcase: none;
   --typography-body-large-fontsize: 1rem;
   --typography-body-large-textdecoration: none;
-  --typography-body-large-fontfamily: DM Sans;
+  --typography-body-large-fontfamily: Roboto;
   --typography-body-large-fontweight: 500;
   --typography-body-large-fontstyle: normal;
   --typography-body-large-fontstretch: normal;
@@ -180,7 +180,7 @@
   --typography-body-large-textcase: none;
   --typography-body-medium-fontsize: 0.875rem;
   --typography-body-medium-textdecoration: none;
-  --typography-body-medium-fontfamily: DM Sans;
+  --typography-body-medium-fontfamily: Roboto;
   --typography-body-medium-fontweight: 500;
   --typography-body-medium-fontstyle: normal;
   --typography-body-medium-fontstretch: normal;
@@ -191,7 +191,7 @@
   --typography-body-medium-textcase: none;
   --typography-body-small-fontsize: 0.75rem;
   --typography-body-small-textdecoration: none;
-  --typography-body-small-fontfamily: DM Sans;
+  --typography-body-small-fontfamily: Roboto;
   --typography-body-small-fontweight: 500;
   --typography-body-small-fontstyle: normal;
   --typography-body-small-fontstretch: normal;
@@ -202,7 +202,7 @@
   --typography-body-small-textcase: none;
   --typography-label-large-fontsize: 0.875rem;
   --typography-label-large-textdecoration: none;
-  --typography-label-large-fontfamily: DM Sans;
+  --typography-label-large-fontfamily: Roboto;
   --typography-label-large-fontweight: 500;
   --typography-label-large-fontstyle: normal;
   --typography-label-large-fontstretch: normal;
@@ -213,7 +213,7 @@
   --typography-label-large-textcase: none;
   --typography-label-medium-fontsize: 0.75rem;
   --typography-label-medium-textdecoration: none;
-  --typography-label-medium-fontfamily: DM Sans;
+  --typography-label-medium-fontfamily: Roboto;
   --typography-label-medium-fontweight: 500;
   --typography-label-medium-fontstyle: normal;
   --typography-label-medium-fontstretch: normal;
@@ -224,7 +224,7 @@
   --typography-label-medium-textcase: none;
   --typography-label-small-fontsize: 0.6875rem;
   --typography-label-small-textdecoration: none;
-  --typography-label-small-fontfamily: DM Sans;
+  --typography-label-small-fontfamily: Roboto;
   --typography-label-small-fontweight: 500;
   --typography-label-small-fontstyle: normal;
   --typography-label-small-fontstretch: normal;

@@ -1,6 +1,14 @@
+import dns from "node:dns";
 import { GoogleGenAI } from "@google/genai";
 import { config } from "@/config";
-import type { ImageInput, TranscriptionResult } from "./index";
+import type { ImageInput, TranscriptionResult, SectionInput, ChapterProposal } from "./index";
+
+// Force IPv4 first in Node.js to prevent ECONNRESET/timeouts caused by broken ISP IPv6 routes
+try {
+  dns.setDefaultResultOrder("ipv4first");
+} catch {
+  // Ignore in environments without node:dns support
+}
 
 /**
  * Gemini Vision Adapter implementing handwritten note OCR and transcription.
@@ -51,28 +59,68 @@ Return valid JSON matching this exact structure:
   ]
 }`;
 
-    const response = await this.ai.models.generateContent({
-      model: config.ai.gemini.model,
-      contents: [
-        {
-          role: "user",
-          parts: [
-            { text: prompt },
-            {
-              inlineData: {
-                data: base64Data,
-                mimeType,
+    // Try primary model first, followed by fallbacks if encountering 503 capacity spikes or network errors
+    const modelsToTry = [
+      config.ai.gemini.model,
+      ...(config.ai.gemini.fallbackModels || []),
+    ];
+    let response: any = null;
+    let lastErr: unknown;
+
+    for (const model of modelsToTry) {
+      // Retry transient network drops or temporary 503 demand spikes up to 2 attempts per model
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          response = await this.ai.models.generateContent({
+            model,
+            contents: [
+              {
+                role: "user",
+                parts: [
+                  { text: prompt },
+                  {
+                    inlineData: {
+                      data: base64Data,
+                      mimeType,
+                    },
+                  },
+                ],
               },
+            ],
+            config: {
+              temperature: config.ai.gemini.temperature,
+              maxOutputTokens: config.ai.gemini.maxOutputTokens,
+              responseMimeType: "application/json",
             },
-          ],
-        },
-      ],
-      config: {
-        temperature: config.ai.gemini.temperature,
-        maxOutputTokens: config.ai.gemini.maxOutputTokens,
-        responseMimeType: "application/json",
-      },
-    });
+          });
+          if (response) break;
+        } catch (err: any) {
+          lastErr = err;
+          const errMsg = String(err?.message || err);
+          const isTransient =
+            err?.status === 503 ||
+            err?.status === 429 ||
+            err?.code === "ECONNRESET" ||
+            errMsg.includes("fetch failed") ||
+            errMsg.includes("ECONNRESET") ||
+            errMsg.includes("ConnectTimeoutError") ||
+            errMsg.includes("high demand");
+
+          if (isTransient && attempt < 2) {
+            console.warn(`Gemini model ${model} transient error (attempt ${attempt}/2): ${errMsg}. Retrying in ${attempt}s...`);
+            await new Promise((r) => setTimeout(r, 1000 * attempt));
+            continue;
+          }
+          console.warn(`Gemini model ${model} failed, attempting next available model:`, errMsg);
+          break;
+        }
+      }
+      if (response) break;
+    }
+
+    if (!response) {
+      throw lastErr;
+    }
 
     const text = response.text || "{}";
     let parsed: any;
@@ -117,4 +165,71 @@ Return valid JSON matching this exact structure:
       costMinor: config.ai.gemini.costPerImageMinor,
     };
   }
+
+  /**
+   * Structuring fallback using Gemini when DeepSeek is unavailable or out of credits.
+   */
+  async structureWithGemini(sections: SectionInput[]): Promise<{ chapters: ChapterProposal[] }> {
+    if (!sections || sections.length === 0) {
+      return { chapters: [] };
+    }
+
+    const systemPrompt = `You are an expert academic editor structuring student notes into a clear digital book.
+Analyze the provided transcript sections and organize them into proposed chapters.
+Return ONLY valid JSON matching this exact structure:
+{
+  "chapters": [
+    {
+      "title": "Chapter Title",
+      "order": 1,
+      "sectionIds": ["section-id-1", "section-id-2"]
+    }
+  ]
+}`;
+
+    const userPrompt = JSON.stringify(
+      sections.map((s, idx) => ({
+        id: s.id,
+        order: s.order ?? idx + 1,
+        text: s.originalText,
+      }))
+    );
+
+    const modelsToTry = [
+      config.ai.gemini.model,
+      ...(config.ai.gemini.fallbackModels || []),
+    ];
+    let lastErr: unknown;
+
+    for (const model of modelsToTry) {
+      try {
+        const response = await this.ai.models.generateContent({
+          model,
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: `${systemPrompt}\n\nSections:\n${userPrompt}` }],
+            },
+          ],
+          config: {
+            temperature: 0.3,
+            maxOutputTokens: 4096,
+            responseMimeType: "application/json",
+          },
+        });
+
+        const text = response.text || "{}";
+        const parsed = JSON.parse(text) as { chapters?: ChapterProposal[] };
+        return {
+          chapters: Array.isArray(parsed.chapters) ? parsed.chapters : [],
+        };
+      } catch (err) {
+        lastErr = err;
+        console.warn(`structureWithGemini: model ${model} failed, trying next available model:`, err);
+      }
+    }
+
+    throw lastErr;
+  }
 }
+

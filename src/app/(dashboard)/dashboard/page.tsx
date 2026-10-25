@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { redirect, notFound } from 'next/navigation';
 import { getBookDetails, serializeBookForClient } from '@/server/books';
 import { createPaymentLog, settleProSubscription } from '@/server/billing';
+import { db } from '@/server/db';
 import LibraryView from './LibraryView';
 import BookViewClient from './BookViewClient';
 
@@ -101,5 +102,14 @@ export default async function DashboardPage(props: { searchParams: SearchParams 
     notFound();
   }
 
-  return <BookViewClient book={serializeBookForClient(book)} />;
+  // Live subscription check for export watermark gating (R25, R34, Rule 6)
+  const subscription = await db.subscription.findUnique({
+    where: { userId },
+    select: { status: true, currentPeriodEnd: true },
+  });
+
+  const isPro =
+    subscription?.status === 'ACTIVE' && subscription.currentPeriodEnd > new Date();
+
+  return <BookViewClient book={serializeBookForClient(book)} isPro={isPro} />;
 }

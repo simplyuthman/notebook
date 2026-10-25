@@ -116,8 +116,7 @@ export default function UploadNotesModal({
                   throw new Error(`Storage upload failed for ${uploadItem.name}`);
                 }
                 uploadedImageIds.push(uploadItem.id);
-              } catch (putErr) {
-                console.error("Direct storage upload error:", putErr);
+              } catch {
                 uploadErrors.push(uploadItem.name);
               }
             }
@@ -154,8 +153,8 @@ export default function UploadNotesModal({
                 method: "POST",
                 body: formData,
               });
-            } catch (localErr) {
-              console.warn("Local image save failed (preview may be unavailable):", localErr);
+            } catch {
+              // Local save fallback omitted
             }
           })
         );
@@ -490,8 +489,8 @@ export default function UploadNotesModal({
                   width: "48px",
                   height: "48px",
                   borderRadius: "50%",
-                  backgroundColor: "#16a34a",
-                  color: "#ffffff",
+                  backgroundColor: "var(--color-success)",
+                  color: "var(--color-on-success)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",

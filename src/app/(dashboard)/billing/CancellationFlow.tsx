@@ -63,8 +63,8 @@ export default function CancellationFlow({
                 width: '32px',
                 height: '32px',
                 borderRadius: '8px',
-                backgroundColor: '#fee2e2',
-                color: '#991b1b',
+                backgroundColor: 'var(--color-error-container)',
+                color: 'var(--color-on-error-container)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -76,7 +76,7 @@ export default function CancellationFlow({
                 <line x1="12" y1="17" x2="12.01" y2="17" />
               </svg>
             </div>
-            <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 700, color: '#991b1b' }}>
+            <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-on-error-container)' }}>
               Cancel Your Pro Subscription
             </h3>
           </div>
@@ -87,7 +87,7 @@ export default function CancellationFlow({
 
           <div
             style={{
-              backgroundColor: 'var(--color-on-primary, #ffffff)',
+              backgroundColor: 'var(--color-surface-container-lowest, #ffffff)',
               borderRadius: '10px',
               border: '1px solid var(--color-outline, #e6e6e6)',
               padding: '16px',
@@ -128,8 +128,8 @@ export default function CancellationFlow({
                 padding: '9px 16px',
                 borderRadius: '8px',
                 border: 'none',
-                backgroundColor: '#dc2626',
-                color: '#ffffff',
+                backgroundColor: 'var(--color-error)',
+                color: 'var(--color-on-error)',
                 fontWeight: 600,
                 fontSize: '0.875rem',
                 cursor: 'pointer',
@@ -161,7 +161,7 @@ export default function CancellationFlow({
                   gap: '10px',
                   padding: '10px 14px',
                   borderRadius: '8px',
-                  backgroundColor: selectedReason === r ? 'var(--color-primary-container, #ccd8ff)' : 'var(--color-on-primary, #ffffff)',
+                  backgroundColor: selectedReason === r ? 'var(--color-primary-container, #ccd8ff)' : 'var(--color-surface-container-lowest, #ffffff)',
                   border: selectedReason === r ? '1px solid var(--color-primary, #0741ff)' : '1px solid var(--color-outline, #e6e6e6)',
                   cursor: 'pointer',
                   fontSize: '0.875rem',
@@ -226,8 +226,8 @@ export default function CancellationFlow({
                 padding: '9px 16px',
                 borderRadius: '8px',
                 border: 'none',
-                backgroundColor: '#dc2626',
-                color: '#ffffff',
+                backgroundColor: 'var(--color-error)',
+                color: 'var(--color-on-error)',
                 fontWeight: 600,
                 fontSize: '0.875rem',
                 cursor: 'pointer',
@@ -252,9 +252,9 @@ export default function CancellationFlow({
           <div
             style={{
               padding: '12px 16px',
-              backgroundColor: '#fee2e2',
+              backgroundColor: 'var(--color-error-container)',
               borderRadius: '8px',
-              color: '#991b1b',
+              color: 'var(--color-on-error-container)',
               fontSize: '0.8125rem',
               marginBottom: '20px',
               fontWeight: 500,
@@ -291,8 +291,8 @@ export default function CancellationFlow({
                 padding: '9px 18px',
                 borderRadius: '8px',
                 border: 'none',
-                backgroundColor: '#dc2626',
-                color: '#ffffff',
+                backgroundColor: 'var(--color-error)',
+                color: 'var(--color-on-error)',
                 fontWeight: 600,
                 fontSize: '0.875rem',
                 cursor: isLoading ? 'not-allowed' : 'pointer',

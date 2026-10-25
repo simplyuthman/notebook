@@ -13,11 +13,12 @@ export const config = {
     maxFileSizeMB: 10,
     maxFileSizeBytes: 10 * 1024 * 1024 // 10 MB in bytes
   },
-  aiCostCeiling: 2000, // per book cost ceiling in kobo
+  aiCostCeiling: 200000, // per book cost ceiling in kobo (₦2,000 ≈ 100 images — must stay above cost floor per AGENTS.md §3 rule 8)
   aiCostPerImage: 2000, // approx cost per image in minor units (kobo)
   ai: {
     gemini: {
-      model: "gemini-2.5-flash",
+      model: "gemini-3.8-flash", // current primary model
+      fallbackModels: ["gemini-3.6-flash", "gemini-3.5-flash"], // reliable fallbacks during 503 demand spikes
       temperature: 0.2,
       maxOutputTokens: 8192,
       costPerImageMinor: 2000, // cost estimate per transcription in minor units (kobo)

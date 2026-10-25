@@ -1,11 +1,11 @@
-FROM node:20-alpine
+FROM node:20-slim
 
 # Set working directory
 WORKDIR /app
 
-# Install dependencies
+# Install dependencies (use --ci for faster, deterministic install from lockfile)
 COPY package.json package-lock.json* ./
-RUN npm install
+RUN npm ci
 
 # Copy the rest of the source code
 COPY . .

@@ -83,7 +83,7 @@ export default function BillingNavigation({
                 gap: '6px',
                 flexShrink: 0,
                 transition: 'color 0.15s ease, border-color 0.15s ease',
-                fontFamily: 'var(--font-dm-sans, sans-serif)',
+                fontFamily: 'var(--typography-body-medium-fontfamily)',
               }}
             >
               {tab.label}
@@ -94,8 +94,8 @@ export default function BillingNavigation({
                     fontWeight: 700,
                     padding: '2px 5px',
                     borderRadius: '999px',
-                    backgroundColor: tab.badgeType === 'danger' ? '#fee2e2' : '#e0e7ff',
-                    color: tab.badgeType === 'danger' ? '#991b1b' : '#3730a3',
+                    backgroundColor: tab.badgeType === 'danger' ? 'var(--color-error-container)' : 'var(--color-info-container)',
+                    color: tab.badgeType === 'danger' ? 'var(--color-on-error-container)' : 'var(--color-on-info-container)',
                     textTransform: 'uppercase',
                     letterSpacing: '0.04em',
                     lineHeight: 1.2,

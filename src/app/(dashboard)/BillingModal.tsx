@@ -179,7 +179,7 @@ export default function BillingModal({
       >
         <div
           style={{
-            backgroundColor: 'var(--color-on-primary, #ffffff)',
+            backgroundColor: 'var(--color-surface-container-lowest, #ffffff)',
             borderRadius: '16px',
             width: '100%',
             maxWidth: '720px',
@@ -228,10 +228,10 @@ export default function BillingModal({
             {error && (
               <div
                 style={{
-                  backgroundColor: '#fee2e2',
+                  backgroundColor: 'var(--color-error-container)',
                   borderRadius: '10px',
                   padding: '16px',
-                  color: '#991b1b',
+                  color: 'var(--color-on-error-container)',
                   marginBottom: '20px',
                   display: 'flex',
                   justifyContent: 'space-between',
@@ -245,9 +245,9 @@ export default function BillingModal({
                   style={{
                     padding: '4px 10px',
                     borderRadius: '6px',
-                    border: '1px solid #991b1b',
+                    border: '1px solid var(--color-on-error-container)',
                     background: 'transparent',
-                    color: '#991b1b',
+                    color: 'var(--color-on-error-container)',
                     fontWeight: 600,
                     fontSize: '0.75rem',
                     cursor: 'pointer',
@@ -264,9 +264,17 @@ export default function BillingModal({
                 role="status"
                 aria-live="polite"
                 style={{
-                  backgroundColor: actionMsg.type === 'success' ? 'var(--color-surface-container-low, #f5f5f5)' : '#fee2e2',
-                  color: actionMsg.type === 'success' ? 'var(--color-on-surface, #191919)' : '#991b1b',
-                  border: `1px solid ${actionMsg.type === 'success' ? 'var(--color-outline, #e6e6e6)' : '#f87171'}`,
+                  backgroundColor:
+                    actionMsg.type === 'success'
+                      ? 'var(--color-success-container)'
+                      : 'var(--color-error-container)',
+                  color:
+                    actionMsg.type === 'success'
+                      ? 'var(--color-on-success-container)'
+                      : 'var(--color-on-error-container)',
+                  border: `1px solid ${
+                    actionMsg.type === 'success' ? 'var(--color-success)' : 'var(--color-error)'
+                  }`,
                   borderRadius: '8px',
                   padding: '10px 14px',
                   marginBottom: '20px',
@@ -287,7 +295,7 @@ export default function BillingModal({
                         width: '8px',
                         height: '8px',
                         borderRadius: '50%',
-                        backgroundColor: '#22c55e',
+                        backgroundColor: 'var(--color-success)',
                         flexShrink: 0,
                       }}
                     />

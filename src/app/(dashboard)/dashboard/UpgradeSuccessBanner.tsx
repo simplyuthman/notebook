@@ -49,7 +49,7 @@ export default function UpgradeSuccessBanner() {
             width: "8px",
             height: "8px",
             borderRadius: "50%",
-            backgroundColor: "#22c55e",
+            backgroundColor: "var(--color-success)",
           }}
         />
         <span>Successfully upgraded to Pro!</span>

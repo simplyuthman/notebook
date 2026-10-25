@@ -7,6 +7,8 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { db } from "@/server/db";
 import { config } from "@/config";
+import path from "path";
+import { readFile, readdir } from "fs/promises";
 
 export function buildStorageKey(userId: string, bookId: string, imageId: string, filename: string) {
   const ext = filename.split(".").pop() || "jpeg";
@@ -99,29 +101,46 @@ export async function getObjectBuffer(storageKey: string): Promise<Buffer | null
   const client = getStorageClient();
   const bucket = process.env.R2_BUCKET;
 
-  if (!client || !bucket) {
-    console.warn("storage.get.skipped_no_object_storage_config", { storageKey });
-    return null;
-  }
+  if (client && bucket && isObjectStorageConfigured()) {
+    try {
+      const response = await client.send(
+        new GetObjectCommand({
+          Bucket: bucket,
+          Key: storageKey,
+        })
+      );
 
-  try {
-    const response = await client.send(
-      new GetObjectCommand({
-        Bucket: bucket,
-        Key: storageKey,
-      })
-    );
-
-    if (!response.Body) {
-      return null;
+      if (response.Body) {
+        const byteArray = await response.Body.transformToByteArray();
+        return Buffer.from(byteArray);
+      }
+    } catch (error) {
+      console.warn("storage.get.cloud_fetch_failed_falling_back", { storageKey, error });
     }
-
-    const byteArray = await response.Body.transformToByteArray();
-    return Buffer.from(byteArray);
-  } catch (error) {
-    console.error("storage.get.failed", { storageKey, error });
-    throw error;
   }
+
+  // Dev-mode fallback: load from local .uploads directory
+  try {
+    const uploadsDir = path.join(process.cwd(), ".uploads");
+    const baseName = path.basename(storageKey);
+    const primaryPath = path.join(uploadsDir, baseName);
+
+    try {
+      return await readFile(primaryPath);
+    } catch {
+      // If extension differs, find by image ID
+      const nameWithoutExt = path.parse(baseName).name;
+      const files = await readdir(uploadsDir).catch(() => []);
+      const matched = files.find((f) => f.startsWith(nameWithoutExt));
+      if (matched) {
+        return await readFile(path.join(uploadsDir, matched));
+      }
+    }
+  } catch (err) {
+    console.warn("storage.get.local_fallback_error", { storageKey, err });
+  }
+
+  return null;
 }
 
 /**

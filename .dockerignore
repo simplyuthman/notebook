@@ -1,0 +1,14 @@
+node_modules
+.next
+.git
+.uploads
+*.log
+npm-debug.log*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+tsconfig.tsbuildinfo
+design-tokens.tokens.json
+convert-tokens.js
+docs

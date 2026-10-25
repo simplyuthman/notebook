@@ -26,18 +26,18 @@ function StatusBadge({ status }: { status: string }) {
   const getBadgeConfig = () => {
     switch (status) {
       case 'ACTIVE':
-        return { bg: '#d1fae5', text: '#065f46', label: 'Active' };
+        return { bg: 'var(--color-success-container)', text: 'var(--color-on-success-container)', label: 'Active' };
       case 'TRIAL':
-        return { bg: '#e0e7ff', text: '#3730a3', label: 'Trial Period' };
+        return { bg: 'var(--color-info-container)', text: 'var(--color-on-info-container)', label: 'Trial Period' };
       case 'CANCELED':
-        return { bg: '#fef3c7', text: '#92400e', label: 'Cancellation Scheduled' };
+        return { bg: 'var(--color-warning-container)', text: 'var(--color-on-warning-container)', label: 'Cancellation Scheduled' };
       case 'PAST_DUE':
       case 'PAYMENT_FAILED':
-        return { bg: '#fee2e2', text: '#991b1b', label: 'Payment Action Required' };
+        return { bg: 'var(--color-error-container)', text: 'var(--color-on-error-container)', label: 'Payment Action Required' };
       case 'EXPIRED':
-        return { bg: '#f3f4f6', text: '#374151', label: 'Expired' };
+        return { bg: 'var(--color-neutral-container)', text: 'var(--color-on-neutral-container)', label: 'Expired' };
       default:
-        return { bg: '#f3f4f6', text: '#374151', label: 'Free Plan' };
+        return { bg: 'var(--color-neutral-container)', text: 'var(--color-on-neutral-container)', label: 'Free Plan' };
     }
   };
 
@@ -242,7 +242,7 @@ export default function BillingOverview({
               padding: '8px 16px',
               borderRadius: '8px',
               backgroundColor: 'var(--color-primary, #0741ff)',
-              color: '#ffffff',
+              color: 'var(--color-on-primary)',
               border: 'none',
               fontWeight: 600,
               fontSize: '0.875rem',
@@ -435,7 +435,7 @@ export default function BillingOverview({
               padding: '8px 16px',
               borderRadius: '8px',
               backgroundColor: 'var(--color-primary, #0741ff)',
-              color: '#ffffff',
+              color: 'var(--color-on-primary)',
               border: 'none',
               fontWeight: 600,
               fontSize: '0.875rem',

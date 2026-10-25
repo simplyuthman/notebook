@@ -12,7 +12,7 @@ export function verificationEmailHtml(code: string): string {
   <style>
     body {
       margin: 0; padding: 0;
-      font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-family: 'Roboto', 'Segoe UI', Helvetica, Arial, sans-serif;
       background-color: #f4f4f7;
       color: #2d2d2d;
     }
@@ -124,7 +124,7 @@ export function welcomeEmailHtml(firstName: string): string {
   <style>
     body {
       margin: 0; padding: 0;
-      font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-family: 'Roboto', 'Segoe UI', Helvetica, Arial, sans-serif;
       background-color: #f4f4f7;
       color: #2d2d2d;
     }
@@ -286,7 +286,7 @@ export function passwordResetEmailHtml(code: string): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Reset your NotesBook password</title>
   <style>
-    body { margin: 0; padding: 0; font-family: 'Segoe UI', Helvetica, Arial, sans-serif; background-color: #f4f4f7; color: #2d2d2d; }
+    body { margin: 0; padding: 0; font-family: 'Roboto', 'Segoe UI', Helvetica, Arial, sans-serif; background-color: #f4f4f7; color: #2d2d2d; }
     .wrapper { max-width: 520px; margin: 40px auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
     .header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); padding: 36px 40px; text-align: center; }
     .header h1 { margin: 0; color: #ffffff; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }

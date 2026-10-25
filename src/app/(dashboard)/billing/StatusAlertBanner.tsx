@@ -41,10 +41,10 @@ export default function StatusAlertBanner({
           justifyContent: 'space-between',
           gap: '12px',
           padding: '12px 16px',
-          backgroundColor: '#fee2e2',
-          border: '1px solid #f87171',
+          backgroundColor: 'var(--color-error-container)',
+          border: '1px solid var(--color-error)',
           borderRadius: '10px',
-          color: '#991b1b',
+          color: 'var(--color-on-error-container)',
           marginBottom: '20px',
         }}
       >
@@ -68,8 +68,8 @@ export default function StatusAlertBanner({
             onClick={onFixPayment}
             style={{
               padding: '6px 12px',
-              backgroundColor: '#991b1b',
-              color: '#ffffff',
+              backgroundColor: 'var(--color-error)',
+              color: 'var(--color-on-error)',
               border: 'none',
               borderRadius: '6px',
               fontWeight: 600,
@@ -96,10 +96,10 @@ export default function StatusAlertBanner({
           justifyContent: 'space-between',
           gap: '12px',
           padding: '12px 16px',
-          backgroundColor: '#fef3c7',
-          border: '1px solid #fcd34d',
+          backgroundColor: 'var(--color-warning-container)',
+          border: '1px solid var(--color-warning)',
           borderRadius: '10px',
-          color: '#92400e',
+          color: 'var(--color-on-warning-container)',
           marginBottom: '20px',
         }}
       >
@@ -122,8 +122,8 @@ export default function StatusAlertBanner({
             onClick={onResumeSubscription}
             style={{
               padding: '6px 12px',
-              backgroundColor: '#b45309',
-              color: '#ffffff',
+              backgroundColor: 'var(--color-warning)',
+              color: 'var(--color-on-warning)',
               border: 'none',
               borderRadius: '6px',
               fontWeight: 600,

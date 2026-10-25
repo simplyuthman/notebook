@@ -63,7 +63,26 @@ export class AppAiService implements AiService {
   }
 
   async structure(sections: SectionInput[]): Promise<{ chapters: ChapterProposal[] }> {
-    return this.structuringAdapter.structure(sections);
+    try {
+      return await this.structuringAdapter.structure(sections);
+    } catch (err) {
+      console.warn("aiService.deepseek_structure_failed_falling_back_to_gemini", err);
+      try {
+        return await this.visionAdapter.structureWithGemini(sections);
+      } catch (geminiErr) {
+        console.error("aiService.gemini_structure_fallback_failed", geminiErr);
+        // Default deterministic fallback: 1 chapter with all sections so the pipeline never hangs
+        return {
+          chapters: [
+            {
+              title: "Chapter 1: Notes",
+              order: 1,
+              sectionIds: sections.map((s) => s.id),
+            },
+          ],
+        };
+      }
+    }
   }
 }
 

@@ -75,7 +75,7 @@ const CAPACITY_LOW_THRESHOLD = 20;
 function TrendPill({ pct }: { pct: number }) {
   const isUp = pct >= CAPACITY_LOW_THRESHOLD;
 
-  const textColor = isUp ? '#16a34a' : '#dc2626';
+  const textColor = isUp ? 'var(--color-success)' : 'var(--color-error)';
 
   const tooltipLabel = isUp
     ? `${pct}% of this limit still available`

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import ThemeToggle from './ThemeToggle';
 
 interface MarketingHeaderProps {
   activePage?: 'home' | 'testimonials' | 'contact';
@@ -115,8 +116,17 @@ export default function MarketingHeader({ activePage = 'home', withBorder = fals
           </a>
         </nav>
 
-        {/* Right: CTA & Hamburger */}
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+        {/* Right: Theme, CTA & Hamburger */}
+        <div
+          style={{
+            flex: 1,
+            display: 'flex',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+            gap: 'calc(var(--spacing-collection-small-spacing) * 1px)',
+          }}
+        >
+          <ThemeToggle />
           <div className="desktop-nav">
             <Link 
               href="/auth?view=signin"

@@ -50,7 +50,7 @@ export default function BillingInfoSection({
     padding: '10px 12px',
     borderRadius: '8px',
     border: '1px solid var(--color-outline, #e6e6e6)',
-    backgroundColor: 'var(--color-on-primary, #ffffff)',
+    backgroundColor: 'var(--color-surface-container-lowest, #ffffff)',
     fontSize: '0.875rem',
     color: 'var(--color-on-surface, #191919)',
     boxSizing: 'border-box',
@@ -82,8 +82,8 @@ export default function BillingInfoSection({
           style={{
             padding: '12px 16px',
             borderRadius: '8px',
-            backgroundColor: msg.type === 'success' ? '#d1fae5' : '#fee2e2',
-            color: msg.type === 'success' ? '#065f46' : '#991b1b',
+            backgroundColor: msg.type === 'success' ? 'var(--color-success-container)' : 'var(--color-error-container)',
+            color: msg.type === 'success' ? 'var(--color-on-success-container)' : 'var(--color-on-error-container)',
             fontSize: '0.875rem',
             marginBottom: '20px',
           }}
@@ -248,7 +248,7 @@ export default function BillingInfoSection({
               borderRadius: '8px',
               border: 'none',
               backgroundColor: 'var(--color-primary, #0741ff)',
-              color: '#ffffff',
+              color: 'var(--color-on-primary)',
               fontWeight: 600,
               fontSize: '0.875rem',
               cursor: loading ? 'not-allowed' : 'pointer',

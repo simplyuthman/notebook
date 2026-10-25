@@ -140,7 +140,7 @@ export default function OnboardingFlow() {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          backgroundColor: 'var(--color-on-primary)',
+          backgroundColor: 'var(--color-surface-container-lowest)',
           padding: 'calc(var(--spacing-collection-extra-large-spacing) * 1px)',
           borderRadius: 'calc(var(--spacing-collection-medium-spacing) * 1px)',
           boxShadow: 'var(--effect-soft-shadow)',

@@ -1,11 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import UploadNotesDrawer from "./UploadNotesModal";
+import DownloadBookModal from "./DownloadBookModal";
 import ImageThumbnail from "./ImageThumbnail";
-import type { SerializedBook, SerializedSourceImage } from "@/server/books";
+import type {
+  SerializedBook,
+  SerializedSourceImage,
+  SerializedSection,
+} from "@/server/books";
 
 type ActiveTab = "notes" | "transcription" | "jobs";
 
@@ -219,9 +224,17 @@ function jobStatusBadge(status: string) {
 /*  Main component                                                            */
 /* -------------------------------------------------------------------------- */
 
-export default function BookViewClient({ book }: { book: SerializedBook }) {
+export default function BookViewClient({
+  book,
+  isPro = false,
+}: {
+  book: SerializedBook;
+  isPro?: boolean;
+}) {
   const [activeTab, setActiveTab] = useState<ActiveTab>("notes");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+  const [copiedSectionId, setCopiedSectionId] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] =
     useState<SerializedSourceImage | null>(null);
   const [deletingImageId, setDeletingImageId] = useState<string | null>(null);
@@ -229,6 +242,107 @@ export default function BookViewClient({ book }: { book: SerializedBook }) {
   const router = useRouter();
 
   const isProcessingBook = book.status === "PROCESSING";
+
+  // Auto-refresh when notes are processing so student sees transcription in real-time
+  useEffect(() => {
+    if (!isProcessingBook) return;
+    const interval = setInterval(() => {
+      router.refresh();
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [isProcessingBook, router]);
+
+  // Download helpers for individual sections & pages
+  const handleCopySection = async (sec: SerializedSection) => {
+    const text = sec.editedText || sec.originalText || "";
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedSectionId(sec.id);
+      setTimeout(() => setCopiedSectionId(null), 2000);
+    } catch {
+      // Fallback
+    }
+  };
+
+  const handleDownloadSingleSection = (sec: SerializedSection) => {
+    const text = sec.editedText || sec.originalText || "";
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${book.title.toLowerCase().replace(/\s+/g, "-")}-section-${sec.order}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadSectionPdf = async (sec: SerializedSection) => {
+    try {
+      const res = await fetch(`/api/books/${book.id}/export?format=pdf&sectionId=${sec.id}`);
+      if (!res.ok) throw new Error("Failed to export section PDF");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${book.title.toLowerCase().replace(/\s+/g, "-")}-section-${sec.order}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      alert("Failed to download section PDF.");
+    }
+  };
+
+  const handleDownloadPagePdf = async (img: SerializedSourceImage) => {
+    const matchingSection = book.sections.find((s) => s.sourceImageId === img.id);
+    const pageNum = img.imageOrder ?? "note";
+    try {
+      const query = matchingSection ? `&sectionId=${matchingSection.id}` : "";
+      const res = await fetch(`/api/books/${book.id}/export?format=pdf${query}`);
+      if (!res.ok) throw new Error("Failed to export PDF");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `page-${pageNum}-notes.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      alert("Failed to download page PDF.");
+    }
+  };
+
+  const handleDownloadPageText = (img: SerializedSourceImage) => {
+    const matchingSections = book.sections.filter(
+      (s) => s.sourceImageId === img.id,
+    );
+    const pageNum = img.imageOrder ?? "note";
+    let content = `Page #${pageNum} - ${img.originalName ?? "Note"}\n`;
+    content += `Transcribed: ${new Date().toLocaleDateString()}\n`;
+    content += `========================================\n\n`;
+
+    if (matchingSections.length === 0) {
+      content += "No transcribed text available for this page yet.\n";
+    } else {
+      matchingSections.forEach((s) => {
+        content += (s.editedText || s.originalText || "") + "\n\n";
+      });
+    }
+
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `page-${pageNum}-transcription.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   const handleToggleProcessing = async () => {
     setIsTogglingProcessing(true);
@@ -549,6 +663,76 @@ export default function BookViewClient({ book }: { book: SerializedBook }) {
                 <line x1="12" y1="3" x2="12" y2="15" />
               </svg>
               Upload Notes
+            </button>
+
+            {/* Download Notes / Book Button */}
+            <button
+              type="button"
+              onClick={() => setIsDownloadModalOpen(true)}
+              disabled={sectionCount === 0}
+              title={
+                sectionCount === 0
+                  ? "Process your notes first to enable download"
+                  : "Download or export transcribed notes"
+              }
+              style={{
+                padding:
+                  "calc(var(--spacing-collection-small-spacing) * 1px) calc(var(--spacing-collection-base-spacing) * 1px)",
+                borderRadius:
+                  "calc(var(--spacing-collection-small-spacing) * 1px)",
+                border: "1px solid var(--color-outline)",
+                backgroundColor:
+                  sectionCount > 0
+                    ? "var(--color-primary-container)"
+                    : "var(--color-surface)",
+                color:
+                  sectionCount > 0
+                    ? "var(--color-on-primary-container)"
+                    : "var(--color-on-surface-variant)",
+                fontFamily: "var(--typography-label-large-fontfamily)",
+                fontSize: "var(--typography-label-large-fontsize)",
+                fontWeight: "600",
+                letterSpacing:
+                  "var(--typography-label-large-letterspacing)",
+                cursor: sectionCount === 0 ? "not-allowed" : "pointer",
+                opacity: sectionCount === 0 ? 0.6 : 1,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "calc(var(--spacing-collection-extra-small-spacing) * 1px)",
+                boxShadow: "var(--effect-soft-shadow)",
+                transition: "opacity 0.15s ease, background-color 0.15s ease",
+              }}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Download Notes
+              {sectionCount > 0 && (
+                <span
+                  style={{
+                    backgroundColor: "var(--color-primary)",
+                    color: "var(--color-on-primary)",
+                    fontSize: "11px",
+                    fontWeight: "700",
+                    padding: "1px 6px",
+                    borderRadius: "10px",
+                    marginLeft: "2px",
+                  }}
+                >
+                  Ready
+                </span>
+              )}
             </button>
 
             {/* Primary: Start / Stop */}
@@ -956,7 +1140,47 @@ export default function BookViewClient({ book }: { book: SerializedBook }) {
                               </svg>
                             </button>
                           ) : (
-                            imageStatusBadge(img.status)
+                            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                              {book.sections.some((s) => s.sourceImageId === img.id) && (
+                                <button
+                                  type="button"
+                                  title="Download transcribed text for this page"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDownloadPageText(img);
+                                  }}
+                                  style={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    width: "24px",
+                                    height: "24px",
+                                    border: "1px solid var(--color-outline)",
+                                    borderRadius: "4px",
+                                    backgroundColor: "var(--color-surface)",
+                                    color: "var(--color-primary)",
+                                    cursor: "pointer",
+                                    padding: 0,
+                                  }}
+                                >
+                                  <svg
+                                    width="12"
+                                    height="12"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  >
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                    <polyline points="7 10 12 15 17 10" />
+                                    <line x1="12" y1="15" x2="12" y2="3" />
+                                  </svg>
+                                </button>
+                              )}
+                              {imageStatusBadge(img.status)}
+                            </div>
                           )}
                         </div>
 
@@ -1066,8 +1290,61 @@ export default function BookViewClient({ book }: { book: SerializedBook }) {
                 </p>
               </div>
             ) : (
-              book.sections.map((sec) => (
-                <div key={sec.id} className="book-section-card">
+              <>
+                {/* Transcribed sections toolbar */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                    gap: "calc(var(--spacing-collection-small-spacing) * 1px)",
+                    padding: "calc(var(--spacing-collection-small-spacing) * 1px) calc(var(--spacing-collection-base-spacing) * 1px)",
+                    backgroundColor: "var(--color-surface-container)",
+                    borderRadius: "calc(var(--spacing-collection-small-spacing) * 1px)",
+                    border: "1px solid var(--color-outline)",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: "var(--typography-body-medium-fontfamily)",
+                      fontSize: "var(--typography-body-medium-fontsize)",
+                      color: "var(--color-on-surface-variant)",
+                    }}
+                  >
+                    Showing <strong>{sectionCount}</strong> transcribed section(s) from AI processing
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsDownloadModalOpen(true)}
+                    style={{
+                      padding: "6px 14px",
+                      borderRadius: "calc(var(--spacing-collection-extra-small-spacing) * 1px)",
+                      border: "none",
+                      backgroundColor: "var(--color-primary)",
+                      color: "var(--color-on-primary)",
+                      fontFamily: "var(--typography-label-medium-fontfamily)",
+                      fontSize: "var(--typography-label-medium-fontsize)",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      boxShadow: "var(--effect-soft-shadow)",
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    Download All Sections
+                  </button>
+                </div>
+
+                {book.sections.map((sec) => (
+                  <div key={sec.id} className="book-section-card">
                   {/* Section header */}
                   <div
                     style={{
@@ -1164,6 +1441,100 @@ export default function BookViewClient({ book }: { book: SerializedBook }) {
                         Confidence: HIGH
                       </span>
                     )}
+
+                    {/* Section actions: Copy & Download */}
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <button
+                        type="button"
+                        onClick={() => handleCopySection(sec)}
+                        title="Copy section text"
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          padding: "3px 8px",
+                          borderRadius: "4px",
+                          border: "1px solid var(--color-outline)",
+                          backgroundColor: "var(--color-surface)",
+                          color: copiedSectionId === sec.id ? "var(--color-primary)" : "var(--color-on-surface)",
+                          fontFamily: "var(--typography-label-small-fontfamily)",
+                          fontSize: "var(--typography-label-small-fontsize)",
+                          fontWeight: "600",
+                          cursor: "pointer",
+                        }}
+                      >
+                        {copiedSectionId === sec.id ? (
+                          <>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Copied!
+                          </>
+                        ) : (
+                          <>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                            </svg>
+                            Copy
+                          </>
+                        )}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDownloadSectionPdf(sec)}
+                        title="Download this section as a formatted PDF"
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          padding: "3px 8px",
+                          borderRadius: "4px",
+                          border: "1px solid var(--color-primary)",
+                          backgroundColor: "var(--color-primary-container)",
+                          color: "var(--color-on-primary-container)",
+                          fontFamily: "var(--typography-label-small-fontfamily)",
+                          fontSize: "var(--typography-label-small-fontsize)",
+                          fontWeight: "700",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                          <polyline points="7 10 12 15 17 10" />
+                          <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                        PDF
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDownloadSingleSection(sec)}
+                        title="Download this section as text"
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          padding: "3px 8px",
+                          borderRadius: "4px",
+                          border: "1px solid var(--color-outline)",
+                          backgroundColor: "var(--color-surface)",
+                          color: "var(--color-on-surface)",
+                          fontFamily: "var(--typography-label-small-fontfamily)",
+                          fontSize: "var(--typography-label-small-fontsize)",
+                          fontWeight: "600",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                          <polyline points="7 10 12 15 17 10" />
+                          <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                        Text
+                      </button>
+                    </div>
                   </div>
 
                   {/* Transcribed text */}
@@ -1234,8 +1605,9 @@ export default function BookViewClient({ book }: { book: SerializedBook }) {
                     </div>
                   )}
                 </div>
-              ))
-            )}
+              ))}
+            </>
+          )}
           </div>
         )}
 
@@ -1462,26 +1834,6 @@ export default function BookViewClient({ book }: { book: SerializedBook }) {
                       flexShrink: 0,
                     }}
                   >
-                    {job.error && (
-                      <span
-                        title={job.error}
-                        style={{
-                          fontFamily:
-                            "var(--typography-body-small-fontfamily)",
-                          fontSize:
-                            "var(--typography-body-small-fontsize)",
-                          color: "var(--color-on-error-container)",
-                          maxWidth: "180px",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {job.error.length > 30
-                          ? `${job.error.slice(0, 30)}\u2026`
-                          : job.error}
-                      </span>
-                    )}
                     {jobStatusBadge(job.status)}
                   </div>
                 </div>
@@ -1697,6 +2049,106 @@ export default function BookViewClient({ book }: { book: SerializedBook }) {
                 Close
               </button>
 
+              {/* Download note photo */}
+              <a
+                href={`/api/images/${selectedImage.id}/file`}
+                download={selectedImage.originalName ?? `page-${selectedImage.imageOrder ?? "note"}.jpg`}
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  padding:
+                    "calc(var(--spacing-collection-small-spacing) * 1px) calc(var(--spacing-collection-base-spacing) * 1px)",
+                  borderRadius:
+                    "calc(var(--spacing-collection-extra-small-spacing) * 1px)",
+                  border: "1px solid var(--color-outline)",
+                  backgroundColor: "var(--color-surface)",
+                  color: "var(--color-on-surface)",
+                  fontFamily:
+                    "var(--typography-label-large-fontfamily)",
+                  fontSize:
+                    "var(--typography-label-large-fontsize)",
+                  fontWeight: "600",
+                  textDecoration: "none",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  cursor: "pointer",
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                Photo
+              </a>
+
+              {/* Download transcription text/PDF if available */}
+              {book.sections.some((s) => s.sourceImageId === selectedImage.id) && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => handleDownloadPagePdf(selectedImage)}
+                    style={{
+                      padding:
+                        "calc(var(--spacing-collection-small-spacing) * 1px) calc(var(--spacing-collection-base-spacing) * 1px)",
+                      borderRadius:
+                        "calc(var(--spacing-collection-extra-small-spacing) * 1px)",
+                      border: "none",
+                      backgroundColor: "var(--color-primary)",
+                      color: "var(--color-on-primary)",
+                      fontFamily:
+                        "var(--typography-label-large-fontfamily)",
+                      fontSize:
+                        "var(--typography-label-large-fontsize)",
+                      fontWeight: "600",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      cursor: "pointer",
+                      boxShadow: "var(--effect-soft-shadow)",
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    Download PDF
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDownloadPageText(selectedImage)}
+                    style={{
+                      padding:
+                        "calc(var(--spacing-collection-small-spacing) * 1px) calc(var(--spacing-collection-base-spacing) * 1px)",
+                      borderRadius:
+                        "calc(var(--spacing-collection-extra-small-spacing) * 1px)",
+                      border: "1px solid var(--color-outline)",
+                      backgroundColor: "var(--color-surface)",
+                      color: "var(--color-on-surface)",
+                      fontFamily:
+                        "var(--typography-label-large-fontfamily)",
+                      fontSize:
+                        "var(--typography-label-large-fontsize)",
+                      fontWeight: "600",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    Text
+                  </button>
+                </>
+              )}
+
               <button
                 type="button"
                 onClick={() => {
@@ -1779,6 +2231,14 @@ export default function BookViewClient({ book }: { book: SerializedBook }) {
         onClose={() => setIsDrawerOpen(false)}
         bookId={book.id}
         bookTitle={book.title}
+      />
+
+      {/* ─── Download / Export Modal ────────────────────────────────── */}
+      <DownloadBookModal
+        isOpen={isDownloadModalOpen}
+        onClose={() => setIsDownloadModalOpen(false)}
+        book={book}
+        isPro={isPro}
       />
     </>
   );

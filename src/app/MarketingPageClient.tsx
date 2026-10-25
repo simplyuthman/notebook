@@ -165,8 +165,8 @@ export default function MarketingPageClient() {
               >
                 <span
                   style={{
-                    backgroundColor: '#dcfce7', // Using a soft green as it's not a semantic role but a specific badge color in the design, or we can use primary-container
-                    color: '#166534',
+                    backgroundColor: 'var(--color-success-container)',
+                    color: 'var(--color-on-success-container)',
                     borderRadius: '20px',
                     padding: '2px 10px',
                     fontFamily: 'var(--typography-label-medium-fontfamily)',

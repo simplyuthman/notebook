@@ -22,8 +22,16 @@ function StatusBadge({ status }: { status: string }) {
   const isPaid = status === 'PAID' || status === 'SUCCESS' || status === 'GRANTED';
   const isFailed = status === 'FAILED' || status === 'REJECTED';
 
-  const bg = isPaid ? '#d1fae5' : isFailed ? '#fee2e2' : '#f3f4f6';
-  const color = isPaid ? '#065f46' : isFailed ? '#991b1b' : '#374151';
+  const bg = isPaid
+    ? 'var(--color-success-container)'
+    : isFailed
+    ? 'var(--color-error-container)'
+    : 'var(--color-neutral-container)';
+  const color = isPaid
+    ? 'var(--color-on-success-container)'
+    : isFailed
+    ? 'var(--color-on-error-container)'
+    : 'var(--color-on-neutral-container)';
 
   return (
     <span
@@ -86,7 +94,7 @@ export default function InvoiceHistorySection({
               padding: '6px 12px',
               borderRadius: '6px',
               border: 'none',
-              backgroundColor: subView === 'invoices' ? 'var(--color-on-primary, #ffffff)' : 'transparent',
+              backgroundColor: subView === 'invoices' ? 'var(--color-surface-container-lowest, #ffffff)' : 'transparent',
               color: subView === 'invoices' ? 'var(--color-on-surface, #191919)' : 'var(--color-on-surface-variant, #4c4c4c)',
               fontWeight: 600,
               fontSize: '0.75rem',
@@ -103,7 +111,7 @@ export default function InvoiceHistorySection({
               padding: '6px 12px',
               borderRadius: '6px',
               border: 'none',
-              backgroundColor: subView === 'logs' ? 'var(--color-on-primary, #ffffff)' : 'transparent',
+              backgroundColor: subView === 'logs' ? 'var(--color-surface-container-lowest, #ffffff)' : 'transparent',
               color: subView === 'logs' ? 'var(--color-on-surface, #191919)' : 'var(--color-on-surface-variant, #4c4c4c)',
               fontWeight: 600,
               fontSize: '0.75rem',

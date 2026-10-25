@@ -1,3 +1,5 @@
+import ThemeToggle from '@/components/ThemeToggle';
+
 export default function AuthLayout({
   children,
 }: {
@@ -7,6 +9,7 @@ export default function AuthLayout({
     <div
       className="auth-layout"
       style={{
+        position: 'relative',
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
@@ -16,6 +19,16 @@ export default function AuthLayout({
         color: 'var(--color-on-surface)',
       }}
     >
+      <div
+        style={{
+          position: 'absolute',
+          top: 'calc(var(--spacing-collection-base-spacing) * 1px)',
+          right: 'calc(var(--spacing-collection-base-spacing) * 1px)',
+        }}
+      >
+        <ThemeToggle />
+      </div>
+
       <div
         style={{
           width: 'min(90%, 28rem)',

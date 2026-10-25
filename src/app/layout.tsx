@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { dmSans } from './fonts';
+import { roboto } from './fonts';
 import './globals.css';
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://notesbook.app';
@@ -89,8 +89,14 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#0741ff',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#fafafa' },
+    { media: '(prefers-color-scheme: dark)', color: '#121212' },
+  ],
 };
+
+// Applies the persisted (or system) theme before first paint to avoid a flash.
+const themeInitScript = `(function(){try{var stored=localStorage.getItem('notesbook-theme');var theme=stored==='light'||stored==='dark'?stored:(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');var root=document.documentElement;root.dataset.theme=theme;root.style.colorScheme=theme;}catch(e){document.documentElement.dataset.theme='light';}})();`;
 
 // JSON-LD structured data for Google — WebApplication schema
 const jsonLd = {
@@ -120,14 +126,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en-NG" className={dmSans.variable}>
+    <html lang="en-NG" className={roboto.variable} suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body style={{ backgroundColor: 'var(--color-surface)', margin: 0 }}>
+      <body
+        style={{
+          backgroundColor: 'var(--color-surface)',
+          color: 'var(--color-on-surface)',
+          margin: 0,
+        }}
+      >
         {children}
       </body>
     </html>

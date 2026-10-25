@@ -121,7 +121,7 @@ export default function UserAvatarMenu({ displayName, initials }: UserAvatarMenu
             right: 0,
             top: 'calc(100% + 8px)',
             minWidth: '200px',
-            backgroundColor: 'var(--color-on-primary, #ffffff)',
+            backgroundColor: 'var(--color-surface-container-lowest, #ffffff)',
             borderRadius: 'calc(var(--spacing-collection-small-spacing, 8) * 1px)',
             border: '1px solid var(--color-outline, #e6e6e6)',
             boxShadow: 'var(--effect-medium-shadow, 0 4px 12px rgba(0,0,0,0.15))',

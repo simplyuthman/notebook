@@ -51,7 +51,7 @@ export default function CancelSuccessBanner({ onDismiss }: CancelSuccessBannerPr
           width: "8px",
           height: "8px",
           borderRadius: "50%",
-          backgroundColor: "#22c55e",
+          backgroundColor: "var(--color-success)",
         }}
       />
       <span>Subscription cancellation was successfully completed.</span>
